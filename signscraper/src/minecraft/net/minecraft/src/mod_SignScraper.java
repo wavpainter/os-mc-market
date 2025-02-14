@@ -68,7 +68,7 @@ public class mod_SignScraper extends BaseMod {
                     if (x instanceof TileEntitySign) {
                         // Found a sign
                         TileEntitySign sign = (TileEntitySign) x;
-                        writer.write(String.format("%d,%d,%d,%s,%s,%s,%s",
+                        writer.write(String.format("%d,%d,%d,%s,%s,%s,%s\n",
                                 sign.xCoord,
                                 sign.yCoord,
                                 sign.zCoord,
