@@ -9,22 +9,27 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class mod_SignScraper extends BaseMod {
-    private static final int F6 = 117;
+    private static final int F6 = 64;
     private Minecraft instance = null;
+    private Logger logger = null;
 
     @Override
     public String Version() {
-        return "SignScraper v1.0";
+        return "SignScraper v1.1";
     }
 
     @Override
     public void ModsLoaded() {
         // Get Minecraft instance
         instance = ModLoader.getMinecraftInstance();
+        logger = ModLoader.getLogger();
 
         // Register F6 to scrape signs
         ModLoader.RegisterKey(this,new KeyBinding("Scrape Signs",F6),false);
@@ -46,11 +51,14 @@ public class mod_SignScraper extends BaseMod {
     @Override
     public void KeyboardEvent(KeyBinding event) {
         try {
-            if (event.keyCode == F6 && instance != null) {
+            if (Objects.equals(event.keyDescription, "Scrape Signs") && instance != null) {
+                logger.info("Scraping signs");
+
                 String savePath = getSavePath();
                 String filePath = Paths.get(
                         savePath,
-                        "sign-scrape_" + LocalDateTime.now().toString()).toString();
+                        "sign-scrape_" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).replace(':','.') + ".csv").toString();
+                logger.info("Writing to " + filePath);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
 
                 writer.write("x,y,z,line1,line2,line3,line4\n");
@@ -73,6 +81,8 @@ public class mod_SignScraper extends BaseMod {
 
                 writer.close();
             }
-        }catch(Exception _) { }
+        }catch(Exception e) {
+            logger.severe("Error scraping signs: " + e.getMessage());
+        }
     }
 }
