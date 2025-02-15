@@ -25,7 +25,7 @@ public class mod_SignScraper extends BaseMod {
 
     @Override
     public String Version() {
-        return "SignScraper v1.1";
+        return "SignScraper v1.2";
     }
 
     @Override
