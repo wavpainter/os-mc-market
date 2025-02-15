@@ -1,16 +1,11 @@
 "use strict";
 
-import fs from "node:fs/promises";
+import {read_json} from "./util.js";
 
-async function read_config() {
-    let filehandle;
-    try {
-        filehandle = await fs.open('config.json','r');
-        let config = await filehandle.readFile({ encoding: 'utf8' });
-        return JSON.parse(config);
-    } finally {
-        if (filehandle) await filehandle.close();     
-    }
+const config = await read_json("config.json");
+const config_data = {
+    scrapePath: config["scrapePath"],
+    locationsPath: config["locationsPath"]
 }
 
-export {read_config};
+export default config_data;
