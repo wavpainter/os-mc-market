@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "node --env-file=.env myapp.js"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.15.1",
+    "express": "^4.21.2"
+  }
+}

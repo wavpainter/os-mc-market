@@ -1,0 +1,4 @@
+node_modules
+aggregated*.json
+package-lock.json
+config.json
