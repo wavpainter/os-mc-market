@@ -12,13 +12,8 @@ const orders = await process_sign_scrape(scrapePath);
 orders.forEach(order => {
     order['location'] = find_location(order.x,order.y,order.z,locations);
 })
-const filterCond = order => true;
 const aggregated = aggregate(orders);
+const docSuffix = "_" + timestamp.replace(':','.')+".json"
 
-const document = {
-    scrapedAt: timestamp,
-    orders,
-    aggregated
-}
-
-write_json("document_"+timestamp.replace(':','.')+".json",document);
+write_json("aggregated" + docSuffix,aggregated);
+write_json("orders" + docSuffix,orders)
