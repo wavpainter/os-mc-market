@@ -8,11 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -25,7 +23,7 @@ public class mod_SignScraper extends BaseMod {
 
     @Override
     public String Version() {
-        return "SignScraper v1.2";
+        return "SignScraper v1.3";
     }
 
     @Override
@@ -60,7 +58,7 @@ public class mod_SignScraper extends BaseMod {
                 String savePath = getSavePath();
                 String filePath = Paths.get(
                         savePath,
-                        "sign-scrape_" + LocalDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME).replace(':','.') + ".csv").toString();
+                        "sign-scrape_" + Instant.now().toString().replace(':','_') + ".csv").toString();
                 logger.info("Writing to " + filePath);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
 
