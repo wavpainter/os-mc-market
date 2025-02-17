@@ -1,7 +1,4 @@
-"use strict";
-
-import fs from "node:fs/promises";
-import path from "path";
+let fs = require("node:fs/promises");
 
 async function read_json(fp) {
     let filehandle;
@@ -25,14 +22,13 @@ async function write_json(fp,data) {
     }
 }
 
-let timestamp_re = new RegExp("^[^_]*_([0-9\-]+T[0-9]+_[0-9]+_[0-9]+\.[0-9]+Z)\.csv$");
-async function get_scrape_timestamp(scrapePath) {
-    let filename = path.basename(scrapePath);
+let timestamp_re = new RegExp("^[^_]*_([0-9\-]+T[0-9]+_[0-9]+_[0-9]+.[0-9]+Z)\.json$");
+function get_file_timestamp(filename) {
     let timestamp_match = filename.match(timestamp_re);
     if(timestamp_match == null || timestamp_match.length != 2) return null;
-    let timestamp = timestamp_match[1].replace('_',':');
+    let timestamp = timestamp_match[1].replaceAll('_',':');
 
     return timestamp;
 }
 
-export {read_json,write_json,get_scrape_timestamp};
+module.exports = {get_file_timestamp,read_json,write_json};

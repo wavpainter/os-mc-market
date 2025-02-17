@@ -14,7 +14,7 @@ orders.forEach(order => {
     order['location'] = find_location(order.x,order.y,order.z,locations);
 })
 const aggregated = aggregate(orders);
-const docSuffix = "_" + timestamp.replace(':','.')+".json"
+const docSuffix = "_" + timestamp.replace(':','_')+".json"
 
 await upload("aggregated"+docSuffix,JSON.stringify(aggregated));
 await upload("orders"+docSuffix,JSON.stringify(orders));
