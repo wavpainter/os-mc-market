@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="/style.css" />
-        <script src="/script.js"></script>
+        <link rel="stylesheet" href="/style.css?cache=1" />
+        <script src="/script.js?cache=1"></script>
     </head>
     <body>
         <div class="container">
@@ -17,19 +17,41 @@
             <div>Median Diamond Price: <input value="$12" disabled="true"></input></div>
             <div>Last Updated: 17th of February 2025 at 4:50PM (UTC)</div>
             <br /><br />
-            <div>
+            <div id="available-items" style="display: block;">
                 <div>Available Items:</div>
                 <br />
-                <table id="available-items">
-                    <tr>
-                        <th>Item</th>
-                        <th class="bheader">Selling</th>
-                        <th class="bheader">Buying</th>
-                    </tr>
+                <table id="item-table">
+                    <tbody>
+                        <tr>
+                            <th>Item</th>
+                            <th class="bheader">Selling</th>
+                            <th class="bheader">Buying</th>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
-            <div id="item-details" hidden="true">
-                Item details
+            <div id="item-details" style="display: none;">
+                <img id="listing-icon" src="/items/1.png" />
+                <div id="listing-common-name">Stone</div>
+                <div id="listing-id">ID: 1 [STONE]</div>
+                <br />
+                <div id="listing-mean">Mean: $2.23</div>
+                <div id="listing-median">Median: $2</div>
+                <br />
+                <div><button id="listing-switch">Switch to Sell Orders</button></div>
+                <br />
+                <div id="listing-orders">Buy Orders:</div>
+                <br />
+                <table id="listing-table">
+                    <tbody>
+                        <tr>
+                            <th>Seller</th>
+                            <th>Unit Price</th>
+                            <th>Stack Price</th>
+                            <th>Location</th>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </body>
