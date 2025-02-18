@@ -41,7 +41,7 @@ function viewItems() {
     let divAvailableItems = ele("available-items");
     let divItemDetails = ele("item-details");
 
-    divAvailableItems.setAttribute("style","display: block;")
+    divAvailableItems.setAttribute("style","display: inline-block;")
     divItemDetails.setAttribute("style","display: none;");
 }
 
@@ -55,7 +55,7 @@ function viewItemListings(itemName,saleType) {
     displayItemListings();
 
     divAvailableItems.setAttribute("style","display: none;")
-    divItemDetails.setAttribute("style","display: block;");
+    divItemDetails.setAttribute("style","display: inline-block;");
 }
 
 function adjustPrice(price) {
@@ -88,7 +88,7 @@ function displayItemListings() {
             viewItemListings(viewedItemName,oppositeOrder);
         }
         if(itemAggregate[oppositeOrder]['count'] == 0) listingSwitch.disabled = true;
-
+        else listingSwitch.disabled = false;
 
         ele('listing-orders').textContent = viewedListingType + " Orders:";
 
@@ -148,6 +148,7 @@ function displayItems() {
             buying.classList.add('bcell');
 
             let iconEle = document.createElement('img');
+            console.log(item['id'])
             iconEle.setAttribute('src','/items/' + item['id'].replace(':','_') + '.png');
             iconEle.setAttribute('width','48');
             iconEle.setAttribute('height','48');
@@ -192,11 +193,11 @@ window.onload = event => {
         aggregated = data['aggregated'];
         if(aggregated['DIAMOND']['Sell']['count'] != 0) {
             diamondSellMedian = aggregated['DIAMOND']['Sell']['median'];
-            ele('median-diamond-price').textContent = 'Median Diamond Sell Price: $' + diamondSellMedian;
+            ele('median-diamond-price').textContent = 'MDSP = $' + diamondSellMedian;
         }
         orders = data['orders'];
         timestamp = data['timestamp'];
-        ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toString();
+        ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
         displayItems();
     }).catch(error => {
         console.error(error);

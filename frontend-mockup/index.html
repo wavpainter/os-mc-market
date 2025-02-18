@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="/style.css?cache=1" />
-        <script src="/script.js?cache=1"></script>
+        <link rel="stylesheet" href="/style.css?cache=2" />
+        <script src="/script.js?cache=2"></script>
     </head>
     <body>
         <div class="container">
@@ -15,12 +15,9 @@
                 </select>
             </div>
             <div id="median-diamond-price"></div>
-            <div id="last-updated"></div>
-            <br /><br />
-            <div id="available-items" style="display: block;">
-                <div>Available Items:</div>
-                <br />
-                <table id="item-table">
+            <br />
+            <div id="available-items" style="display: inline-block;">
+                <table class="centered-table" id="item-table">
                     <tbody>
                         <tr>
                             <th>Item</th>
@@ -30,7 +27,7 @@
                     </tbody>
                 </table>
             </div>
-            <div id="item-details" style="display: none;">
+            <div class="full" id="item-details" style="display: none;">
                 <div><button id="back-button">Back to items</button><button id="listing-switch">Switch to Sell Orders</button></div>
                 <br /><br />
                 <img id="listing-icon" src="/items/1.png" />
@@ -42,17 +39,21 @@
                 <br />
                 <div id="listing-orders">Buy Orders:</div>
                 <br />
-                <table id="listing-table">
+                <table class="full" id="listing-table">
                     <tbody>
                         <tr>
                             <th>Player</th>
-                            <th class="bheader">Unit Price</th>
-                            <th class="bheader">Stack Price</th>
+                            <th class="bheader">Unit</th>
+                            <th class="bheader">Stack</th>
                             <th>Location</th>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <br />
+            <br />
+            <br />
+            <div id="last-updated"> </div>
         </div>
     </body>
 </html>

@@ -10,11 +10,21 @@ button {
 }
 
 .container {
-    width: 1000px;
+    width: 400px;
     padding: 20px;
+    text-align: center;
     margin-left: auto;
     margin-right: auto;
     background-color: aliceblue;
+}
+
+.full {
+    width: 100%;
+}
+
+.centered {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .bcell {

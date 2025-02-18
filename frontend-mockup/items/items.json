@@ -553,5 +553,560 @@
         "id": "265",
         "name": "Iron",
         "stack": 64
+    },
+    "GOLD": {
+        "id": "266",
+        "name": "Gold",
+        "stack": 64
+    },
+    "IRON_SWORD": {
+        "id": "267",
+        "name": "Iron Sword",
+        "stack": 1
+    },
+    "WOOD_SWORD": {
+        "id": "268",
+        "name": "Wooden Sword",
+        "stack": 1
+    },
+    "WOOD_SHOVEL": {
+        "id": "269",
+        "name": "Wooden Shovel",
+        "stack": 1
+    },
+    "WOOD_PICKAXE": {
+        "id": "270",
+        "name": "Wooden Pickaxe",
+        "stack": 1
+    },
+    "WOOD_AXE": {
+        "id": "271",
+        "name": "Wooden Axe",
+        "stack": 1
+    },
+    "STONE_SWORD": {
+        "id": "272",
+        "name": "Stone Sword",
+        "stack": 1
+    },
+    "STONE_SHOVEL": {
+        "id": "273",
+        "name": "Stone Shovel",
+        "stack": 1
+    },
+    "STONE_PICKAXE": {
+        "id": "274",
+        "name": "Stone Pickaxe",
+        "stack": 1
+    },
+    "STONE_AXE": {
+        "id": "275",
+        "name": "Stone Axe",
+        "stack": 1
+    },
+    "DIAMOND_SWORD": {
+        "id": "276",
+        "name": "Diamond Sword",
+        "stack": 1
+    },
+    "DIAMOND_SHOVEL": {
+        "id": "277",
+        "name": "Diamond Shovel",
+        "stack": 1
+    },
+    "DIAMOND_PICKAXE": {
+        "id": "278",
+        "name": "Diamond Pickaxe",
+        "stack": 1
+    },
+    "DIAMOND_AXE": {
+        "id": "279",
+        "name": "Diamond Axe",
+        "stack": 1
+    },
+    "STICK": {
+        "id": "280",
+        "name": "Stick",
+        "stack": 64
+    },
+    "BOWL": {
+        "id": "281",
+        "name": "Bowl",
+        "stack": 64
+    },
+    "MUSHROOM_SOUP": {
+        "id": "282",
+        "name": "Mushroom Soup",
+        "stack": 1
+    },
+    "GOLD_SWORD": {
+        "id": "283",
+        "name": "Golden Sword",
+        "stack": 1
+    },
+    "GOLD_SHOVEL": {
+        "id": "284",
+        "name": "Golden Shovel",
+        "stack": 1
+    },
+    "GOLD_PICKAXE": {
+        "id": "285",
+        "name": "Golden Pickaxe",
+        "stack": 1
+    },
+    "GOLD_AXE": {
+        "id": "286",
+        "name": "Golden Axe",
+        "stack": 1
+    },
+    "STRING": {
+        "id": "287",
+        "name": "String",
+        "stack": 1
+    },
+    "FEATHER": {
+        "id": "288",
+        "name": "Feather",
+        "stack": 64
+    },
+    "SULPHUR": {
+        "id": "289",
+        "name": "Gunpowder",
+        "stack": 64
+    },
+    "WOOD_HOE": {
+        "id": "290",
+        "name": "Wooden Hoe",
+        "stack": 1
+    },
+    "STONE_HOE": {
+        "id": "291",
+        "name": "Stone Hoe",
+        "stack": 1
+    },
+    "IRON_HOE": {
+        "id": "292",
+        "name": "Iron Hoe",
+        "stack": 1
+    },
+    "DIAMOND_HOE": {
+        "id": "293",
+        "name": "Diamond Hoe",
+        "stack": 1
+    },
+    "GOLD_HOE": {
+        "id": "294",
+        "name": "Golden Hoe",
+        "stack": 1
+    },
+    "SEEDS": {
+        "id": "295",
+        "name": "Seeds",
+        "stack": 64
+    },
+    "WHEAT": {
+        "id": "296",
+        "name": "Wheat",
+        "stack": 64
+    },
+    "BREAD": {
+        "id": "297",
+        "name": "Bread",
+        "stack": 1
+    },
+    "LEATHER_HELMET": {
+        "id": "298",
+        "name": "Leather Helmet",
+        "stack": 1
+    },
+    "LEATHER_CHESTPL": {
+        "id": "299",
+        "name": "Leather Chestplate",
+        "stack": 1
+    },
+    "LEATHER_LEGGING": {
+        "id": "300",
+        "name": "Leather Leggings",
+        "stack": 1
+    },
+    "LEATHER_BOOTS": {
+        "id": "301",
+        "name": "Leather Boots",
+        "stack": 1
+    },
+    "CHAINMAIL_HELME": {
+        "id": "302",
+        "name": "Chainmail Helmet",
+        "stack": 1
+    },
+    "CHAINMAIL_CHEST": {
+        "id": "303",
+        "name": "Chainmail Chestplate",
+        "stack": 1
+    },
+    "CHAINMAIL_LEGGI": {
+        "id": "304",
+        "name": "Chainmail Leggings",
+        "stack": 1
+    },
+    "CHAINMAIL_BOOTS": {
+        "id": "305",
+        "name": "Chainmail Boots",
+        "stack": 1
+    },
+    "IRON_HELMET": {
+        "id": "306",
+        "name": "Iron Helmet",
+        "stack": 1
+    },
+    "IRON_CHESTPLATE": {
+        "id": "307",
+        "name": "Iron Chestplate",
+        "stack": 1
+    },
+    "IRON_LEGGINGS": {
+        "id": "308",
+        "name": "Iron Leggings",
+        "stack": 1
+    },
+    "IRON_BOOTS": {
+        "id": "309",
+        "name": "Iron Boots",
+        "stack": 1
+    },
+    "DIAMOND_HELMET": {
+        "id": "310",
+        "name": "Diamond Helmet",
+        "stack": 1
+    },
+    "DIAMOND_CHESTPL": {
+        "id": "311",
+        "name": "Diamond Chestplate",
+        "stack": 1
+    },
+    "DIAMOND_LEGGING": {
+        "id": "312",
+        "name": "Diamond Leggings",
+        "stack": 1
+    },
+    "DIAMOND_BOOTS": {
+        "id": "313",
+        "name": "Diamond Boots",
+        "stack": 1
+    },
+    "GOLD_HELMET": {
+        "id": "314",
+        "name": "Golden Helmet",
+        "stack": 1
+    },
+    "GOLD_CHESTPLATE": {
+        "id": "315",
+        "name": "Golden Chestplate",
+        "stack": 1
+    },
+    "GOLD_LEGGINGS": {
+        "id": "316",
+        "name": "Golden Leggings",
+        "stack": 1
+    },
+    "GOLD_BOOTS": {
+        "id": "317",
+        "name": "Golden Boots",
+        "stack": 1
+    },
+    "FLINT": {
+        "id": "318",
+        "name": "Flint",
+        "stack": 64
+    },
+    "PORK": {
+        "id": "319",
+        "name": "Pork",
+        "stack": 1
+    },
+    "COOKED_PORK": {
+        "id": "320",
+        "name": "Cooked Pork",
+        "stack": 1
+    },
+    "PAINTING": {
+        "id": "321",
+        "name": "Painting",
+        "stack": 64
+    },
+    "GOLDEN_APPLE": {
+        "id": "322",
+        "name": "Golden Apple",
+        "stack": 1
+    },
+    "SIGN": {
+        "id": "323",
+        "name": "Sign",
+        "stack": 1
+    },
+    "WOOD_DOOR": {
+        "id": "324",
+        "name": "Wooden Door",
+        "stack": 64
+    },
+    "BUCKET": {
+        "id": "325",
+        "name": "Bucket",
+        "stack": 1
+    },
+    "WATER_BUCKET": {
+        "id": "326",
+        "name": "Water Bucket",
+        "stack": 1
+    },
+    "LAVA_BUCKET": {
+        "id": "327",
+        "name": "Lava Bucket",
+        "stack": 1
+    },
+    "MINECART": {
+        "id": "328",
+        "name": "Minecart",
+        "stack": 1
+    },
+    "SADDLE": {
+        "id": "329",
+        "name": "Saddle",
+        "stack": 1
+    },
+    "IRON_DOOR": {
+        "id": "330",
+        "name": "Iron Door",
+        "stack": 1
+    },
+    "REDSTONE": {
+        "id": "331",
+        "name": "Redstone",
+        "stack": 64
+    },
+    "SNOWBALL": {
+        "id": "332",
+        "name": "Snowball",
+        "stack": 16
+    },
+    "BOAT": {
+        "id": "333",
+        "name": "Boat",
+        "stack": 1
+    },
+    "LEATHER": {
+        "id": "334",
+        "name": "Leather",
+        "stack": 64
+    },
+    "MILK_BUCKET": {
+        "id": "335",
+        "name": "Milk Bucket",
+        "stack": 1
+    },
+    "CLAY_BRICK": {
+        "id": "336",
+        "name": "Brick",
+        "stack": 64
+    },
+    "CLAY_BALL": {
+        "id": "337",
+        "name": "Clay Ball",
+        "stack": 64
+    },
+    "SUGAR_CANE": {
+        "id": "338",
+        "name": "Sugarcane",
+        "stack": 64
+    },
+    "PAPER": {
+        "id": "339",
+        "name": "Paper",
+        "stack": 64
+    },
+    "BOOK": {
+        "id": "340",
+        "name": "Book",
+        "stack": 64
+    },
+    "SLIME_BALL": {
+        "id": "341",
+        "name": "Slime Ball",
+        "stack": 64
+    },
+    "STORAGE_MINECAR": {
+        "id": "342",
+        "name": "Minecart with Chest",
+        "stack": 1
+    },
+    "POWERED_MINECAR": {
+        "id": "343",
+        "name": "Powered Minecart",
+        "stack": 1
+    },
+    "EGG": {
+        "id": "344",
+        "name": "Egg",
+        "stack": 16
+    },
+    "COMPASS": {
+        "id": "345",
+        "name": "Compass",
+        "stack": 1
+    },
+    "FISHING_ROD": {
+        "id": "346",
+        "name": "Fishing Rod",
+        "stack": 1
+    },
+    "WATCH": {
+        "id": "347",
+        "name": "Clock",
+        "stack": 1
+    },
+    "GLOWSTONE_DUST": {
+        "id": "348",
+        "name": "Glowstone Dust",
+        "stack": 64
+    },
+    "RAW_FISH": {
+        "id": "349",
+        "name": "Raw Fish",
+        "stack": 1
+    },
+    "COOKED_FISH": {
+        "id": "350",
+        "name": "Cooked Fish",
+        "stack": 1
+    },
+    "INK_SACK:0": {
+        "id": "351:0",
+        "name": "Ink Sack",
+        "stack": 64
+    },
+    "INK_SACK:1": {
+        "id": "351:1",
+        "name": "Red Dye",
+        "stack": 64
+    },
+    "INK_SACK:2": {
+        "id": "351:2",
+        "name": "Green Dye",
+        "stack": 64
+    },
+    "INK_SACK:3": {
+        "id": "351:3",
+        "name": "Brown Dye",
+        "stack": 64
+    },
+    "INK_SACK:4": {
+        "id": "351:4",
+        "name": "Lapis Lazuli",
+        "stack": 64
+    },
+    "INK_SACK:5": {
+        "id": "351:5",
+        "name": "Purple Dye",
+        "stack": 64
+    },
+    "INK_SACK:6": {
+        "id": "351:6",
+        "name": "Cyan Dye",
+        "stack": 64
+    },
+    "INK_SACK:7": {
+        "id": "351:7",
+        "name": "Light Gray Dye",
+        "stack": 64
+    },
+    "INK_SACK:8": {
+        "id": "351:8",
+        "name": "Dark Gray Dye",
+        "stack": 64
+    },
+    "INK_SACK:9": {
+        "id": "351:9",
+        "name": "Light Pink Dye",
+        "stack": 64
+    },
+    "INK_SACK:10": {
+        "id": "351:10",
+        "name": "Light Green Dye",
+        "stack": 64
+    },
+    "INK_SACK:11": {
+        "id": "351:11",
+        "name": "Yellow Dye",
+        "stack": 64
+    },
+    "INK_SACK:12": {
+        "id": "351:12",
+        "name": "Light Blue Dye",
+        "stack": 64
+    },
+    "INK_SACK:13": {
+        "id": "351:13",
+        "name": "Pink Dye",
+        "stack": 64
+    },
+    "INK_SACK:14": {
+        "id": "351:14",
+        "name": "Orange Dye",
+        "stack": 64
+    },
+    "INK_SACK:15": {
+        "id": "351:15",
+        "name": "Bonemeal",
+        "stack": 64
+    },
+    "BONE": {
+        "id": "352",
+        "name": "Bone",
+        "stack": 64
+    },
+    "SUGAR": {
+        "id": "353",
+        "name": "Sugar",
+        "stack": 64
+    },
+    "CAKE": {
+        "id": "354",
+        "name": "Cake",
+        "stack": 1
+    },
+    "BED": {
+        "id": "355",
+        "name": "Bed",
+        "stack": 1
+    },
+    "DIODE": {
+        "id": "356",
+        "name": "Redstone Repeater",
+        "stack": 64
+    },
+    "COOKIE": {
+        "id": "357",
+        "name": "Cookie",
+        "stack": 8
+    },
+    "MAP": {
+        "id": "358",
+        "name": "Map",
+        "stack": 1
+    },
+    "SHEARS": {
+        "id": "359",
+        "name": "Shears",
+        "stack": 1
+    },
+    "GOLD_RECORD": {
+        "id": "2256",
+        "name": "13",
+        "stack": 1
+    },
+    "GREEN_RECORD": {
+        "id": "2257",
+        "name": "Cat",
+        "stack": 64
     }
 }
