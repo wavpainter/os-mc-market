@@ -30,7 +30,7 @@ async function get_scrape_timestamp(scrapePath) {
     let filename = path.basename(scrapePath);
     let timestamp_match = filename.match(timestamp_re);
     if(timestamp_match == null || timestamp_match.length != 2) return null;
-    let timestamp = timestamp_match[1].replace('_',':');
+    let timestamp = timestamp_match[1].replaceAll('_',':');
 
     return timestamp;
 }

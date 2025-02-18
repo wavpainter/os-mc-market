@@ -3,6 +3,12 @@ body {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+button {
+    margin-left:5px;
+    margin-right:5px;
+    padding: 5px;
+}
+
 .container {
     width: 1000px;
     padding: 20px;

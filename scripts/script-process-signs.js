@@ -14,7 +14,10 @@ orders.forEach(order => {
     order['location'] = find_location(order.x,order.y,order.z,locations);
 })
 const aggregated = aggregate(orders);
-const docSuffix = "_" + timestamp.replace(':','_')+".json"
+const docSuffix = "_" + timestamp.replaceAll(':','_')+".json"
 
-write_json(path.join(config.localOutputPath,"aggregated" + docSuffix),aggregated)
-write_json(path.join(config.localOutputPath,"orders" + docSuffix),orders)
+write_json(path.join(config.localOutputPath,"market_data"+docSuffix), {
+    "timestamp": timestamp,
+    "aggregated": aggregated,
+    "orders": orders
+})

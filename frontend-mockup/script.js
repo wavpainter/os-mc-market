@@ -4,8 +4,10 @@ let displayingViewedItem = false;
 let viewedItemName = null;
 let viewedListingType = null;
 let useOSMDollars = true;
+let usingOSMDollars = true;
 
 // Data
+let timestamp = null;
 let aggregated = null;
 let locations = null;
 let orders = null;
@@ -58,11 +60,13 @@ function viewItemListings(itemName,saleType) {
 
 function adjustPrice(price) {
     if(useOSMDollars || price == 0 || diamondSellMedian == null) return "$" + price.toFixed(2);
-    else return "d/" + Math.round(diamondSellMedian / price);
+    else return (diamondSellMedian / price).toFixed(1);
 }
 
 function displayItemListings() {
-    if(!displayingViewedItem && viewedItemName != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
+    if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars)) 
+        && viewedItemName != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
+        usingOSMDollars = useOSMDollars;
         displayingViewedItem = true;
 
         let itemDetails = items[viewedItemName];
@@ -77,7 +81,15 @@ function displayItemListings() {
         ele('listing-common-name').textContent = itemDetails['name'];
         ele('listing-id').textContent = "ID " + itemDetails['id'] + " [" + viewedItemName + "]";
 
-        ele('listing-switch').textContent = "Switch to " + (viewedListingType == "Buy" ? "Sell" : "Buy") + " Orders";
+        let oppositeOrder = viewedListingType == "Buy" ? "Sell" : "Buy";
+        let listingSwitch = ele('listing-switch')
+        listingSwitch.textContent = "Switch to " + oppositeOrder + " Orders";
+        listingSwitch.onclick = event => {
+            viewItemListings(viewedItemName,oppositeOrder);
+        }
+        if(itemAggregate[oppositeOrder]['count'] == 0) listingSwitch.disabled = true;
+
+
         ele('listing-orders').textContent = viewedListingType + " Orders:";
 
         if(count == 0) {
@@ -88,10 +100,10 @@ function displayItemListings() {
             ele('listing-median').textContent = "Median: " + adjustPrice(itemAggregate[viewedListingType]['median']);
         }
 
-        console.log(ele('listing-table').children)
-        let rows = ele('listing-table').rows
-        for(let i = 1; i < rows.length; i++) {
-
+        let table = ele('listing-table')
+        let rows = table.rows
+        for(let i = rows.length - 1; i > 0; i--) {
+            table.deleteRow(i);
         }
 
         itemOrders.forEach(order => {
@@ -103,7 +115,9 @@ function displayItemListings() {
     
             cSeller.textContent = order['player_name'];
             cUnit.textContent = adjustPrice(order['price'] / order['quantity']);
+            cUnit.classList.add('bcell');
             cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity']);
+            cStack.classList.add('bcell');
             cLocation.textContent = order['location'].join(" > ");
         })
 
@@ -122,6 +136,8 @@ function displayItems() {
 
             let sellCount = aggregatedData == undefined ? 0 : aggregatedData['Sell']['count'];
             let buyCount = aggregatedData == undefined ? 0 : aggregatedData['Buy']['count'];
+
+            if(sellCount == 0 && buyCount == 0) return;
 
             let row = availableItemsTable.insertRow();
             let name = row.insertCell(0);
@@ -157,12 +173,30 @@ function displayItems() {
     }
 }
 
+function updateUnits() {
+    useOSMDollars = ele('unit-select').value == "osm";
+    displayItemListings();
+}
+
 window.onload = event => {
-    fetchJSON("/data/aggregated.json").then(data => {
-        aggregated = data;
+    ele('back-button').onclick = event => {
+        viewItems();
+    }
+
+    updateUnits();
+    ele('unit-select').onchange = event => {
+        updateUnits();
+    }
+
+    fetchJSON("/data/market_data.json").then(data => {
+        aggregated = data['aggregated'];
         if(aggregated['DIAMOND']['Sell']['count'] != 0) {
             diamondSellMedian = aggregated['DIAMOND']['Sell']['median'];
+            ele('median-diamond-price').textContent = 'Median Diamond Sell Price: $' + diamondSellMedian;
         }
+        orders = data['orders'];
+        timestamp = data['timestamp'];
+        ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toString();
         displayItems();
     }).catch(error => {
         console.error(error);
@@ -170,12 +204,6 @@ window.onload = event => {
     });
     fetchJSON("/data/locations.json").then(data => {
         locations = data;
-    }).catch(error => {
-        console.error(error);
-        dataError = true;
-    });
-    fetchJSON("/data/orders.json").then(data => {
-        orders = data;
     }).catch(error => {
         console.error(error);
         dataError = true;
