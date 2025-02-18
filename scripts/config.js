@@ -7,7 +7,8 @@ const config_data = {
     scrapePath: config["scrapePath"],
     locationsPath: config["locationsPath"],
     gcsCredentialsPath: config["gcsCredentialsPath"],
-    gcsBucketName: config["gcsBucketName"]
+    gcsBucketName: config["gcsBucketName"],
+    localOutputPath: config["localOutputPath"]
 }
 
 export default config_data;

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/style.css" />
+        <script src="/script.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div>OSMC Market</div>
+            <br /><br />
+            <div>
+                Units: <select>
+                    <option default>$OSM</option>
+                    <option>per Diamond</option>
+                </select>
+            </div>
+            <div>Median Diamond Price: <input value="$12" disabled="true"></input></div>
+            <div>Last Updated: 17th of February 2025 at 4:50PM (UTC)</div>
+            <br /><br />
+            <div>
+                <div>Available Items:</div>
+                <br />
+                <table id="available-items">
+                    <tr>
+                        <th>Item</th>
+                        <th class="bheader">Selling</th>
+                        <th class="bheader">Buying</th>
+                    </tr>
+                </table>
+            </div>
+            <div id="item-details" hidden="true">
+                Item details
+            </div>
+        </div>
+    </body>
+</html>
