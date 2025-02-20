@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="/style.css?cache=2" />
+        <link rel="stylesheet" href="/slider.css?cache=2" />
         <script src="/script.js?cache=2"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,8 +11,10 @@
     <body>
         <div class="header">
             <div class="container">
+
                 <div class="title">
                     <a href="/">
+
                     <div class="title-box-gradient title-box">
                         <div class="nuosu-sil-regular title-text engraved-text">
                             OSMC Market
@@ -22,8 +25,16 @@
                     </div>
                     </a>
                 </div>
- 
+
+
                 <div class="nav-box">  
+                    <a href="https://oldschoolminecraft.net/">
+                        <div class="btn nav nav-box-gradient">
+                            <div class="nav-text">
+                                <img class="btn-icon" src="https://oldschoolminecraft.net/img/favicon.png" width="30px" height="30px" />
+                            </div>
+                        </div>
+                    </a>
                     <a href="/help">
                         <div class="btn nav nav-box-gradient">
                             <div class="nav-text">
@@ -38,29 +49,210 @@
                             </div>
                         </div>
                     </a>
-                    <a href="/">
-                        <div class="btn nav nav-box-gradient">
-                            <div class="nav-text">
-                                Market Listing
-                            </div>
-                        </div>
-                    </a>
+                    
+                    
                 </div>
                 <div class="nav-box-2">
-                    <a href="https://oldschoolminecraft.net/">
-                        <div class="btn nav nav-box-gradient" style="margin-top:10px">
-                            <div class="nav-text">
-                                <img class="btn-icon" src="https://oldschoolminecraft.net/img/favicon.png" width="20px" height="20px" />
-                                Old School Minecraft
-                            </div>
-                        </div>
-                    </a>
+                    
                 </div>
             </div>
             
         </div>
+        
         <div class="container">
-            <div class="foo"></div>
+            <div class="listing-options">
+                <div class="listing-option line">
+                    <label class="switch">
+                        <input id="unstocked-option" type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
+                    <label for="unstocked-option">
+                        Show Unlisted Items
+                    </label>
+                </div>
+                <div title="Display price in 'Units per Diamond', using the Median Diamond Sell Price." class="listing-option line">
+                    
+                    <label class="switch">
+                        <input id="units-option" type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
+                    <label for="units-option">
+                        Diamond Units
+                    </label>
+                </div>
+                <div title="Coming soon." class="listing-option" style="opacity:60%">
+                    
+                    <label class="switch">
+                        <input disabled="true" id="historical-option" type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
+                    <label for="historical-option">
+                        Historical Listings
+                    </label>
+                </div>
+            </div>
+            <div class="listing-grid">
+                <div class="listing-grid-description centered">
+                    The top number beside each item is the count of offers to <span class="sell-count">Sell</span> that item.
+                    The number below is the count of offers to <span class="buy-count">Buy</span> that item.
+                    Click an item for more details. 
+                </div>
+                <div class="listing-grid-items">
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/1.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/2.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/3.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/4.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/5.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/12.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/13.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/1.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/2.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/3.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/4.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/5.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/12.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/13.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/1.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/2.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/3.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/4.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/5.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/12.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                    <div class="item-box">
+                        <img class="item-box-img" src="/items/13.png" />
+                        <div class="item-box-sell item-box-count sell-count">5</div>
+                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    </div>
+                </div>
+            </div>
+            <h2>OSMC Market</h2>
+            <br />
+            <div>
+                Price Units: <select id="unit-select">
+                    <option value="osm" default>$OSM</option>
+                    <option value="diamond">per Diamond</option>
+                </select>
+            </div>
+            <div id="median-diamond-price"></div>
+            <br />
+            <div id="available-items" style="display: inline-block;">
+                <table class="centered-table" id="item-table">
+                    <tbody>
+                        <tr>
+                            <th>Item</th>
+                            <th class="bheader">Selling</th>
+                            <th class="bheader">Buying</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="full" id="item-details" style="display: none;">
+                <div><button id="back-button">Back to items</button><button id="listing-switch">Switch to Sell Orders</button></div>
+                <br /><br />
+                <img id="listing-icon" src="/items/1.png" />
+                <h4 id="listing-common-name">Stone</h4>
+                <div id="listing-id">ID: 1 [STONE]</div>
+                <br />
+                <div id="listing-mean">Mean: $2.23</div>
+                <div id="listing-median">Median: $2</div>
+                <br />
+                <div id="listing-orders">Buy Orders:</div>
+                <br />
+                <table class="full" id="listing-table">
+                    <tbody>
+                        <tr>
+                            <th>Player</th>
+                            <th class="bheader">Unit</th>
+                            <th class="bheader">Stack</th>
+                            <th>Location</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br />
+            <br />
+            <br />
+            <div id="last-updated"> </div>
         </div>
     </body>
 </html>
