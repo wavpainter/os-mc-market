@@ -77,7 +77,6 @@ function adjustPrice(price) {
 }
 
 function displayItemListings() {
-    console.log(viewedListingType);
     if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars)) 
         && viewedItemName != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
         usingOSMDollars = useOSMDollars;
@@ -89,6 +88,8 @@ function displayItemListings() {
         let itemOrders = orders.filter(order => {
             return order['item'] == viewedItemName && order['order_type'] == viewedListingType;
         })
+        let compareFn = viewedListingType == 'Sell' ? (a,b) => a['price'] / a['quantity'] - b['price'] / b['quantity'] : (b,a) => a['price'] / a['quantity'] - b['price'] / b['quantity'];
+        itemOrders = itemOrders.sort(compareFn);
         let count = itemOrders.length;
 
         ele('item-img').setAttribute('src','/items/'+itemDetails['id'].replace(':','_') + '.png');
@@ -100,11 +101,11 @@ function displayItemListings() {
         };
 
         if(viewedListingType != 'Sell') {
-            ele('selling-tab').onclick = viewItemListings(viewedItemName,'Sell');
+            ele('selling-tab').onclick = () => viewItemListings(viewedItemName,'Sell');
         }
 
         if(viewedListingType != 'Buy') {
-            ele('buying-tab').onclick = viewItemListings(viewedItemName,'Buy');
+            ele('buying-tab').onclick = () => viewItemListings(viewedItemName,'Buy');
         }
 
         /*

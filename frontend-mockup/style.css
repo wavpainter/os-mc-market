@@ -22,6 +22,13 @@ button {
     margin-right: auto;
 }
 
+.content {
+    background-color: rgb(0,0,0,0.2);
+    min-height: 450px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
 .full {
     width: 100%;
 }
@@ -199,9 +206,6 @@ button {
 
 .listing-grid {
     float:left;
-    background-color: rgb(0,0,0,0.2);
-    min-height: 800px;
-    padding-bottom: 20px;
 }
 
 .listing-grid-description {
@@ -217,7 +221,7 @@ button {
     font-weight:bold;
 }
 .buy-count {
-    color:#44a;
+    color:#1c54fc;
     font-weight: bold;
 }
 
@@ -274,11 +278,8 @@ button {
 .item-details {
     float:left;
     position:relative;
-    padding-bottom: 20px;
     padding-top: 10px;
     width:100%;
-    min-height: 450px;
-    background-color: rgb(0,0,0,0.2);
 }
 
 .back-button {
@@ -297,13 +298,13 @@ button {
     color: #ccc;
     font-weight: bolder;
     font-size: 24pt;
-    margin-top:30px;
+    margin-top:28px;
 }
 
 .item-details-icon {
     position:relative;
     width: 120px;
-    margin-top: 20px;
+    margin-top: 22px;
     margin-bottom: 20px;
     margin-left:auto;
     margin-right: auto;
@@ -321,7 +322,7 @@ button {
     width: 50px;
     height: 25px;
     color:white;
-    background-color: #36f;
+    background-color: #1c54fc;
     border-color:white;
     border-width:1px;
     border-style: solid;
@@ -365,7 +366,9 @@ button {
 
 .item-details-table {
     width: 760px;
-    min-height: 250px;
+    min-height: 100px;
+    padding-bottom: 25px;
+    border-radius: 0 0 6px 6px;
     margin-left: auto;
     margin-right: auto;
     background-color: #eee;
@@ -390,6 +393,10 @@ button {
     border-color: #aaa;
 }
 
+.help {
+    padding: 20px;
+}
+
 .listing-table-cell {
     height: 25px;
 
@@ -397,4 +404,16 @@ button {
     border-style: solid;
     border-color: #aaa;
     text-align: center;
+}
+
+.help-title {
+    color: goldenrod;
+    font-style: italic;
+    font-size: 24px;
+}
+
+.help-content {
+    color: #bbb;
+    font-size: 18px;
+    margin-bottom: 15px;
 }

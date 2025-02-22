@@ -3,7 +3,7 @@
     <head>
         <link rel="stylesheet" href="/style.css?cache=2" />
         <link rel="stylesheet" href="/slider.css?cache=2" />
-        <script src="/script.js?cache=2"></script>
+        <script src="/index.js?cache=2"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Nuosu+SIL&display=swap" rel="stylesheet">
@@ -42,13 +42,7 @@
                             </div>
                         </div>
                     </a>
-                    <a href="#">
-                        <div class="btn nav nav-box-gradient">
-                            <div class="nav-text">
-                                Random Item
-                            </div>
-                        </div>
-                    </a>
+                   
                 </div>
             </div>
             
@@ -86,17 +80,17 @@
                     </label>
                 </div>
             </div>
-            <div id="listing-grid" class="listing-grid" style="display:inline-block;">
+            <div id="listing-grid" class="content listing-grid" style="display:inline-block;">
                 <div class="listing-grid-description centered">
-                    The top number beside each item is the count of offers to <span class="sell-count">Sell</span> that item.
-                    The number below is the count of offers to <span class="buy-count">Buy</span> that item.
+                    The top number is the quantity of offers to <span class="sell-count">Sell</span>.
+                    The bottom number is the quantity of offers to <span class="buy-count">Buy</span>.
                     Click an item for more details. 
                 </div>
                 <div id="listing-grid-items" class="listing-grid-items">
                 </div>
             </div>
-            <div id="item-details" class="item-details" style="display:none;">
-                <a href="javascript:void(0);" id="back-button" class="back-button nav-box-gradient btn">◀ Back</a>
+            <div id="item-details" class="content item-details" style="display:none;">
+                <a href="javascript:void(0);" id="back-button" class="back-button nav-box-gradient btn">◂ Back</a>
                 <div class="item-details-name" id="item-name"></div>
                 <div class="item-details-icon">
                     <img src="/items/1.png" id="item-img" />
