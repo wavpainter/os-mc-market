@@ -30,6 +30,8 @@ const order_type_lookup = {
     'S': 'Buy'
 }
 function get_order_data(sign_data) {
+    let orders = []
+    
     // Player name
     let player_name = sign_data['line1'].trim();
     if(player_name == '') return null;
@@ -40,30 +42,35 @@ function get_order_data(sign_data) {
     let quantity = parseInt(sign_data['line2']);
 
     // Order (Buy/Sell and price)
-    let order_matches = sign_data['line3'].trim().match(order_re);
-    if(order_matches == null || order_matches.length != 3) return null;
-    let order_type = order_type_lookup[order_matches[1]];
-    let price = parseFloat(order_matches[2]);
-    
-    // Item
-    let item = sign_data['line4'].trim().toUpperCase();
+    let order_split = sign_data['line3'].split(':');
+    order_split.forEach(order_part => {
+        let order_matches = order_part.trim().match(order_re);
+        if(order_matches == null || order_matches.length != 3) return;
+        let order_type = order_type_lookup[order_matches[1]];
+        let price = parseFloat(order_matches[2]);
+        
+        // Item
+        let item = sign_data['line4'].trim().toUpperCase();
 
-    // Coordinates
-    let x = parseInt(sign_data['x']);
-    let y = parseInt(sign_data['y']);
-    let z = parseInt(sign_data['z']);
+        // Coordinates
+        let x = parseInt(sign_data['x']);
+        let y = parseInt(sign_data['y']);
+        let z = parseInt(sign_data['z']);
 
-    // Construct object
-    return {
-        x,
-        y,
-        z,
-        player_name,
-        quantity,
-        order_type,
-        price,
-        item
-    }
+        orders.push({
+            x,
+            y,
+            z,
+            player_name,
+            quantity,
+            order_type,
+            price,
+            item
+        })
+    })
+
+    if(orders.length == 0) return null;
+    else return orders;
 }
 
 // Process CSV containing sign text
@@ -73,7 +80,7 @@ async function process_sign_scrape(csv_path) {
     data.forEach(sign_data => {
         let order_data = get_order_data(sign_data);
         if(order_data != null) {
-            orders.push(order_data);
+            orders.push(...order_data);
         }
     })
     return orders;

@@ -2,10 +2,10 @@
 
 import {process_sign_scrape,find_location,aggregate} from "./orders.js";
 import config from "./config.js";
-import { read_json, write_json, get_scrape_timestamp } from "./util.js";
+import { read_json, write_json, get_file_timestamp } from "./util.js";
 import path from "path";
 
-const timestamp = await get_scrape_timestamp(config.scrapePath);
+const timestamp = await get_file_timestamp(path.basename(config.scrapePath));
 const scrapePath = config.scrapePath;
 const locationsPath = config.locationsPath;
 const locations = await read_json(locationsPath);
