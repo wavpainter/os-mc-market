@@ -19,26 +19,6 @@ let dataError = false;
 // Other
 let diamondSellMedian = null;
 
-function ele(id) {
-    return document.getElementById(id);
-}
-
-function fetchJSON(url) {
-    return new Promise((resolve,reject) => {
-        fetch(url).then(response => {
-            if(!response.ok) {
-                reject("Fetching " + url + " resulted in " + response.status);
-            }
-            return response.json();
-        }).then(data => {
-            resolve(data);
-        }).catch(error => {
-            console.error(error);
-            reject("Failed to load " + url);
-        })
-    })
-}
-
 function viewItems() {
     let divAvailableItems = ele("listing-grid");
     let divItemDetails = ele("item-details");
@@ -230,7 +210,7 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    fetchJSON("/data/market_data.json").then(data => {
+    fetchJSON("https://storage.googleapis.com/os-mc-market/market_data.json").then(data => {
         aggregated = data['aggregated'];
         if(aggregated['DIAMOND']['Sell']['count'] != 0) {
             diamondSellMedian = aggregated['DIAMOND']['Sell']['median'];
@@ -238,13 +218,13 @@ window.onload = event => {
         }
         orders = data['orders'];
         timestamp = data['timestamp'];
-        //ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
+        ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
         displayItems();
     }).catch(error => {
         console.error(error);
         dataError = true;
     });
-    fetchJSON("/data/locations.json").then(data => {
+    fetchJSON("https://storage.googleapis.com/os-mc-market/locations.json").then(data => {
         locations = data;
     }).catch(error => {
         console.error(error);
