@@ -5,6 +5,8 @@ let viewedItemName = null;
 let viewedListingType = null;
 let useOSMDollars = true;
 let usingOSMDollars = true;
+let showUnlisted = false;
+let showingUnlisted = false;
 
 // Data
 let timestamp = null;
@@ -38,7 +40,7 @@ function fetchJSON(url) {
 }
 
 function viewItems() {
-    let divAvailableItems = ele("available-items");
+    let divAvailableItems = ele("listing-grid");
     let divItemDetails = ele("item-details");
 
     divAvailableItems.setAttribute("style","display: inline-block;")
@@ -46,8 +48,19 @@ function viewItems() {
 }
 
 function viewItemListings(itemName,saleType) {
-    let divAvailableItems = ele("available-items");
+    let divAvailableItems = ele("listing-grid");
     let divItemDetails = ele("item-details");
+
+    // Set tabs
+    let tableTabs = document.getElementsByClassName("table-tab");
+    for(let i=0; i < tableTabs.length; i++) {
+        tableTabs.item(i).classList.remove('selected-tab');
+    }
+    if(saleType == "Sell") {
+        ele('selling-tab').classList.add('selected-tab');
+    }else {
+        ele('buying-tab').classList.add('selected-tab');
+    }
 
     displayingViewedItem = false;
     viewedItemName = itemName;
@@ -64,6 +77,7 @@ function adjustPrice(price) {
 }
 
 function displayItemListings() {
+    console.log(viewedListingType);
     if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars)) 
         && viewedItemName != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
         usingOSMDollars = useOSMDollars;
@@ -77,19 +91,23 @@ function displayItemListings() {
         })
         let count = itemOrders.length;
 
-        ele('listing-icon').setAttribute('src','/items/'+itemDetails['id'].replace(':','_') + '.png');
-        ele('listing-common-name').textContent = itemDetails['name'];
-        ele('listing-id').textContent = "ID " + itemDetails['id'] + " [" + viewedItemName + "]";
+        ele('item-img').setAttribute('src','/items/'+itemDetails['id'].replace(':','_') + '.png');
+        ele('item-name').textContent = itemDetails['name'];
+        let divItemId = ele('item-id');
+        divItemId.setAttribute('title', itemDetails['id'] + " [" + viewedItemName + "]");
+        divItemId.onclick = event => {
+            navigator.clipboard.writeText(itemDetails['id']);
+        };
 
-        let oppositeOrder = viewedListingType == "Buy" ? "Sell" : "Buy";
-        let listingSwitch = ele('listing-switch')
-        listingSwitch.textContent = "Switch to " + oppositeOrder + " Orders";
-        listingSwitch.onclick = event => {
-            viewItemListings(viewedItemName,oppositeOrder);
+        if(viewedListingType != 'Sell') {
+            ele('selling-tab').onclick = viewItemListings(viewedItemName,'Sell');
         }
-        if(itemAggregate[oppositeOrder]['count'] == 0) listingSwitch.disabled = true;
-        else listingSwitch.disabled = false;
 
+        if(viewedListingType != 'Buy') {
+            ele('buying-tab').onclick = viewItemListings(viewedItemName,'Buy');
+        }
+
+        /*
         ele('listing-orders').textContent = viewedListingType + " Orders:";
 
         if(count == 0) {
@@ -99,35 +117,49 @@ function displayItemListings() {
             ele('listing-mean').textContent = "Mean: " + adjustPrice(itemAggregate[viewedListingType]['mean']);
             ele('listing-median').textContent = "Median: " + adjustPrice(itemAggregate[viewedListingType]['median']);
         }
-
+        */
         let table = ele('listing-table')
         let rows = table.rows
         for(let i = rows.length - 1; i > 0; i--) {
             table.deleteRow(i);
         }
 
+        // Add 
         itemOrders.forEach(order => {
             let row = ele('listing-table').insertRow();
+            row.classList.add('listing-table-row');
+
             let cSeller = row.insertCell();
             let cUnit = row.insertCell();
             let cStack = row.insertCell();
             let cLocation = row.insertCell();
+            let cCoords = row.insertCell();
     
             cSeller.textContent = order['player_name'];
+            cSeller.classList.add('listing-table-cell');
             cUnit.textContent = adjustPrice(order['price'] / order['quantity']);
-            cUnit.classList.add('bcell');
+            cUnit.classList.add('listing-table-cell');
             cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity']);
-            cStack.classList.add('bcell');
+            cStack.classList.add('listing-table-cell');
             cLocation.textContent = order['location'].join(" > ");
+            cLocation.classList.add('listing-table-cell');
+            cCoords.textContent = order['x'] + " " + order['y'] + " " + order['z'];
+            cCoords.classList.add('listing-table-cell');
         })
 
     }
 }
 
 function displayItems() {
-    if (!displayingItems && aggregated != null && items != null) {
-        // Display items
+    if (!(displayingItems && (showUnlisted == showingUnlisted)) && aggregated != null && items != null) {
+        showingUnlisted = showUnlisted;
         displayingItems = true;
+
+        // Clear items
+        let listingGridItems = ele('listing-grid-items');
+        listingGridItems.innerHTML = "";
+
+        // Display items
         view = "items";
         let availableItemsTable = ele("item-table");
         Object.keys(items).forEach(itemName => {
@@ -137,46 +169,49 @@ function displayItems() {
             let sellCount = aggregatedData == undefined ? 0 : aggregatedData['Sell']['count'];
             let buyCount = aggregatedData == undefined ? 0 : aggregatedData['Buy']['count'];
 
-            if(sellCount == 0 && buyCount == 0) return;
+            if(!showUnlisted && sellCount == 0 && buyCount == 0) return;
 
-            let row = availableItemsTable.insertRow();
-            let name = row.insertCell(0);
-            let selling = row.insertCell(1);
-            let buying = row.insertCell(2);
+            let itemBox = document.createElement('div');
+            itemBox.classList.add('item-box');
+            listingGridItems.appendChild(itemBox);
 
-            selling.classList.add('bcell');
-            buying.classList.add('bcell');
-
-            let iconEle = document.createElement('img');
-            console.log(item['id'])
-            iconEle.setAttribute('src','/items/' + item['id'].replace(':','_') + '.png');
-            iconEle.setAttribute('width','48');
-            iconEle.setAttribute('height','48');
-
-            let sellButton = document.createElement('button');
-            sellButton.textContent = sellCount;
-            if(sellCount == 0) sellButton.disabled = true;
-            sellButton.onclick = event => {
+            let itemBoxImg = document.createElement('img');
+            itemBoxImg.classList.add('item-box-img');
+            itemBoxImg.setAttribute('src','/items/' + item['id'].replace(':','_') + '.png');
+            itemBoxImg.onclick = event => {
                 viewItemListings(itemName,"Sell");
             }
+            itemBox.appendChild(itemBoxImg);
 
-            let buyButton = document.createElement('button');
-            buyButton.textContent = buyCount;
-            if(buyCount == 0) buyButton.disabled = true;
-            buyButton.onclick = event => {
+            let itemBoxSell = document.createElement('a');
+            itemBoxSell.href = "#";
+            itemBoxSell.classList.add(...['item-box-sell','item-box-count','sell-count']);
+            itemBoxSell.textContent = sellCount;
+            itemBoxSell.onclick = event => {
+                viewItemListings(itemName,"Sell");
+            }
+            itemBox.appendChild(itemBoxSell);
+
+            let itemBoxBuy = document.createElement('a');
+            itemBoxBuy.href = "#";
+            itemBoxBuy.classList.add(...['item-box-buy','item-box-count','buy-count']);
+            itemBoxBuy.textContent = buyCount;
+            itemBoxBuy.onclick = event => {
                 viewItemListings(itemName,"Buy");
             }
-
-            name.appendChild(iconEle);
-            selling.appendChild(sellButton);
-            buying.appendChild(buyButton);
+            itemBox.appendChild(itemBoxBuy);
         })
     }
 }
 
 function updateUnits() {
-    useOSMDollars = ele('unit-select').value == "osm";
+    useOSMDollars = !ele('units-option').checked;
     displayItemListings();
+}
+
+function updateUnlisted() {
+    showUnlisted = ele('unlisted-option').checked;
+    displayItems();
 }
 
 window.onload = event => {
@@ -185,19 +220,24 @@ window.onload = event => {
     }
 
     updateUnits();
-    ele('unit-select').onchange = event => {
+    ele('units-option').onchange = event => {
         updateUnits();
+    }
+
+    updateUnlisted();
+    ele('unlisted-option').onchange = event => {
+        updateUnlisted();
     }
 
     fetchJSON("/data/market_data.json").then(data => {
         aggregated = data['aggregated'];
         if(aggregated['DIAMOND']['Sell']['count'] != 0) {
             diamondSellMedian = aggregated['DIAMOND']['Sell']['median'];
-            ele('median-diamond-price').textContent = 'MDSP = $' + diamondSellMedian;
+            //ele('median-diamond-price').textContent = 'MDSP = $' + diamondSellMedian;
         }
         orders = data['orders'];
         timestamp = data['timestamp'];
-        ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
+        //ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
         displayItems();
     }).catch(error => {
         console.error(error);

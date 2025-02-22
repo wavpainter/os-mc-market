@@ -49,11 +49,6 @@
                             </div>
                         </div>
                     </a>
-                    
-                    
-                </div>
-                <div class="nav-box-2">
-                    
                 </div>
             </div>
             
@@ -63,10 +58,10 @@
             <div class="listing-options">
                 <div class="listing-option line">
                     <label class="switch">
-                        <input id="unstocked-option" type="checkbox" />
+                        <input id="unlisted-option" type="checkbox" />
                         <span class="slider round"></span>
                     </label>
-                    <label for="unstocked-option">
+                    <label for="unlisted-option">
                         Show Unlisted Items
                     </label>
                 </div>
@@ -91,168 +86,48 @@
                     </label>
                 </div>
             </div>
-            <div class="listing-grid">
+            <div id="listing-grid" class="listing-grid" style="display:inline-block;">
                 <div class="listing-grid-description centered">
                     The top number beside each item is the count of offers to <span class="sell-count">Sell</span> that item.
                     The number below is the count of offers to <span class="buy-count">Buy</span> that item.
                     Click an item for more details. 
                 </div>
-                <div class="listing-grid-items">
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/1.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                <div id="listing-grid-items" class="listing-grid-items">
+                </div>
+            </div>
+            <div id="item-details" class="item-details" style="display:none;">
+                <a href="javascript:void(0);" id="back-button" class="back-button nav-box-gradient btn">◀ Back</a>
+                <div class="item-details-name" id="item-name"></div>
+                <div class="item-details-icon">
+                    <img src="/items/1.png" id="item-img" />
+                    <a href="javascript:void(0);" class="item-details-info" id="item-id" title="1 [STONE]" onclick="navigator.clipboard.writeText('1');">Copy ID</a>
+                </div>
+                <div class="item-details-summary">
+                </div>
+                <div class="item-details-listings">
+                    <div class="item-details-tabs">
+                        <a href="javascript:void(0);" id="selling-tab" class="table-tab selected-tab">
+                            Selling
+                        </a>
+                        <a href="javascript:void(0);" id="buying-tab" class="table-tab">
+                            Buying
+                        </a>
                     </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/2.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/3.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/4.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/5.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/12.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/13.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/1.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/2.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/3.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/4.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/5.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/12.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/13.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/1.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/2.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/3.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/4.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/5.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/12.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
-                    </div>
-                    <div class="item-box">
-                        <img class="item-box-img" src="/items/13.png" />
-                        <div class="item-box-sell item-box-count sell-count">5</div>
-                        <div class="item-box-buy item-box-count buy-count">4</div> 
+                    <div class="item-details-table">
+                        <table class="full listing-table" id="listing-table">
+                            <tbody>
+                                <tr class="listing-table-header">
+                                    <th>Player</th>
+                                    <th>Unit</th>
+                                    <th>Stack</th>
+                                    <th>Location</th>
+                                    <th>Coords</th>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <h2>OSMC Market</h2>
-            <br />
-            <div>
-                Price Units: <select id="unit-select">
-                    <option value="osm" default>$OSM</option>
-                    <option value="diamond">per Diamond</option>
-                </select>
-            </div>
-            <div id="median-diamond-price"></div>
-            <br />
-            <div id="available-items" style="display: inline-block;">
-                <table class="centered-table" id="item-table">
-                    <tbody>
-                        <tr>
-                            <th>Item</th>
-                            <th class="bheader">Selling</th>
-                            <th class="bheader">Buying</th>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="full" id="item-details" style="display: none;">
-                <div><button id="back-button">Back to items</button><button id="listing-switch">Switch to Sell Orders</button></div>
-                <br /><br />
-                <img id="listing-icon" src="/items/1.png" />
-                <h4 id="listing-common-name">Stone</h4>
-                <div id="listing-id">ID: 1 [STONE]</div>
-                <br />
-                <div id="listing-mean">Mean: $2.23</div>
-                <div id="listing-median">Median: $2</div>
-                <br />
-                <div id="listing-orders">Buy Orders:</div>
-                <br />
-                <table class="full" id="listing-table">
-                    <tbody>
-                        <tr>
-                            <th>Player</th>
-                            <th class="bheader">Unit</th>
-                            <th class="bheader">Stack</th>
-                            <th>Location</th>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <br />
-            <br />
-            <br />
-            <div id="last-updated"> </div>
         </div>
     </body>
 </html>
