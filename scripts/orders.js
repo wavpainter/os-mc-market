@@ -29,6 +29,11 @@ const order_type_lookup = {
     'B': 'Sell',
     'S': 'Buy'
 }
+const alias_lookup = {
+    'GOLD': 'GOLD_ORE',
+    'IRON': 'IRON_ORE'
+}
+
 function get_order_data(sign_data) {
     let orders = []
     
@@ -51,6 +56,9 @@ function get_order_data(sign_data) {
         
         // Item
         let item = sign_data['line4'].trim().toUpperCase();
+        if(item in alias_lookup) {
+            item = alias_lookup[item];
+        }
 
         // Coordinates
         let x = parseInt(sign_data['x']);

@@ -549,12 +549,12 @@
         "name": "Diamond",
         "stack": 64
     },
-    "IRON": {
+    "IRON_INGOT": {
         "id": "265",
         "name": "Iron",
         "stack": 64
     },
-    "GOLD": {
+    "GOLD_INGOT": {
         "id": "266",
         "name": "Gold",
         "stack": 64
@@ -996,12 +996,12 @@
     },
     "INK_SACK:3": {
         "id": "351:3",
-        "name": "Brown Dye",
+        "name": "Cocoa Beans",
         "stack": 64
     },
     "INK_SACK:4": {
         "id": "351:4",
-        "name": "Blue Dye",
+        "name": "Lapis Lazuli",
         "stack": 64
     },
     "INK_SACK:5": {
