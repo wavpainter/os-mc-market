@@ -1,5 +1,5 @@
 import config from "./config.js";
-import { upload } from "./upload.js";
+import { upload,updateCacheControl } from "./gcs.js";
 import path from "path";
 import {get_latest_suffix,read_file} from "./util.js"
 
@@ -9,8 +9,10 @@ let latestMarketData = await read_file(path.join(config.localOutputPath,"market_
 
 console.log("Uploading market_data.json");
 await upload("market_data.json",latestMarketData);
+await updateCacheControl("market_data.json");
 
 let latestLocations = await read_file(config.locationsPath);
 
 console.log("Uploading locations.json");
 await upload("locations.json",latestLocations);
+await updateCacheControl("locations.json");
