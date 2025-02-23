@@ -7,11 +7,13 @@ let useOSMDollars = true;
 let usingOSMDollars = true;
 let showUnlisted = false;
 let showingUnlisted = false;
+let hiddenChanged = false;
 
 // Data
 let timestamp = null;
 let aggregated = null;
 let locations = null;
+let hidden = null;
 let orders = null;
 let items = null;
 let dataError = false;
@@ -51,16 +53,80 @@ function viewItemListings(itemName,saleType) {
     divItemDetails.setAttribute("style","display: inline-block;");
 }
 
+function hideOrder(order) {
+    let orderKey = getOrderKey(order);
+    hidden[orderKey] = timestamp;
+    updateHidden();
+
+    hiddenChanged = true;
+    displayItemListings();
+}
+
+function unhideOrder(order) {
+    let orderKey = getOrderKey(order);
+    delete hidden[orderKey];
+    updateHidden();
+
+    hiddenChanged = true;
+    displayItemListings();
+}
+
 function adjustPrice(price) {
     if(useOSMDollars || price == 0 || diamondSellMedian == null) return "$" + price.toFixed(2);
     else return (diamondSellMedian / price).toFixed(1);
 }
 
+function appendOrderListing(itemDetails,order,isHidden) {
+    let row = ele('listing-table').insertRow();
+    row.classList.add('listing-table-row');
+    if(isHidden) {
+        row.classList.add('listing-hidden');
+    }
+
+    let cSeller = row.insertCell();
+    let cUnit = row.insertCell();
+    let cStack = row.insertCell();
+    let cLocation = row.insertCell();
+    let cCoords = row.insertCell();
+    let cHide = row.insertCell();
+
+    cSeller.textContent = order['player_name'];
+    cSeller.classList.add('listing-table-cell');
+    cUnit.textContent = adjustPrice(order['price'] / order['quantity']);
+    cUnit.classList.add('listing-table-cell');
+    cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity']);
+    cStack.classList.add('listing-table-cell');
+    cLocation.textContent = order['location'].join(" > ");
+    cLocation.classList.add('listing-table-cell');
+    cCoords.textContent = order['x'] + " " + order['y'] + " " + order['z'];
+    cCoords.classList.add('listing-table-cell');
+
+    cHide.classList.add('listing-table-cell');
+
+    let hideBtn = document.createElement('a');
+    hideBtn.classList.add('btn');
+    hideBtn.classList.add('nav-box-gradient');
+    hideBtn.classList.add('hide-btn');
+    hideBtn.setAttribute('href','javascript:void(0);');
+    hideBtn.onclick = isHidden ? () => unhideOrder(order) : () => hideOrder(order);
+    cHide.appendChild(hideBtn);
+
+    let hideImg = document.createElement('img');
+    if(isHidden) {
+        hideImg.setAttribute('src','/images/view.png');
+    } else {
+        hideImg.setAttribute('src','/images/hide.png');
+    }
+    hideImg.classList.add('table-icon');
+    hideBtn.appendChild(hideImg);
+}
+
 function displayItemListings() {
-    if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars)) 
-        && viewedItemName != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
+    if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars) && !hiddenChanged) 
+        && viewedItemName != null && hidden != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
         usingOSMDollars = useOSMDollars;
         displayingViewedItem = true;
+        hiddenChanged = false;
 
         let itemDetails = items[viewedItemName];
         let itemAggregate = aggregated[viewedItemName];
@@ -105,27 +171,21 @@ function displayItemListings() {
             table.deleteRow(i);
         }
 
+        let hiddenOrders = [];
+
         // Add 
         itemOrders.forEach(order => {
-            let row = ele('listing-table').insertRow();
-            row.classList.add('listing-table-row');
+            let orderKey = getOrderKey(order);
+            if(orderKey in hidden) {
+                hiddenOrders.push(order);
+                return;
+            }
 
-            let cSeller = row.insertCell();
-            let cUnit = row.insertCell();
-            let cStack = row.insertCell();
-            let cLocation = row.insertCell();
-            let cCoords = row.insertCell();
-    
-            cSeller.textContent = order['player_name'];
-            cSeller.classList.add('listing-table-cell');
-            cUnit.textContent = adjustPrice(order['price'] / order['quantity']);
-            cUnit.classList.add('listing-table-cell');
-            cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity']);
-            cStack.classList.add('listing-table-cell');
-            cLocation.textContent = order['location'].join(" > ");
-            cLocation.classList.add('listing-table-cell');
-            cCoords.textContent = order['x'] + " " + order['y'] + " " + order['z'];
-            cCoords.classList.add('listing-table-cell');
+            appendOrderListing(itemDetails,order,false);            
+        })
+
+        hiddenOrders.forEach(order => {
+            appendOrderListing(itemDetails,order,true);
         })
 
     }
@@ -185,6 +245,26 @@ function displayItems() {
     }
 }
 
+function loadHidden() {
+    const hiddenItems = localStorage.getItem("hiddenItems");
+    if(hiddenItems == null) {
+        hidden = {};
+    } else {
+        hidden = JSON.parse(hiddenItems);
+    }
+}
+
+function updateHidden() {
+    if(hidden == null) return;
+
+    const hiddenItems = JSON.stringify(hidden);
+    try {
+        localStorage.setItem("hiddenItems",hiddenItems);
+    }catch(e) {
+        localStorage.removeItem("hiddenItems");
+    }
+}
+
 function updateUnits() {
     useOSMDollars = !ele('units-option').checked;
     displayItemListings();
@@ -196,6 +276,8 @@ function updateUnlisted() {
 }
 
 window.onload = event => {
+    loadHidden();
+
     ele('back-button').onclick = event => {
         viewItems();
     }

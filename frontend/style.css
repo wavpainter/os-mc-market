@@ -52,6 +52,7 @@ button {
     height: 300px;
     background-image: linear-gradient(0deg,rgba(0, 0, 0, 0.897) 0%,rgba(0, 0, 0, 0) 100%), url("/images/banner.webp") ;
     background-size: cover;
+    background-position: 25%;
 }
 
 .title {
@@ -405,12 +406,28 @@ button {
 }
 
 .listing-table-cell {
-    height: 25px;
-
+    height: 26px;
     border-width: 1px 0;
     border-style: solid;
     border-color: #aaa;
     text-align: center;
+}
+
+.table-icon {
+    display: inline;
+    margin-top:3px;
+    height: 20px;
+    padding: 0 5px;
+}
+
+.hide-btn {
+    display: inline-block;
+    height: 25px;
+
+}
+
+.listing-hidden {
+    opacity: 50%;
 }
 
 .help-title {
@@ -423,6 +440,7 @@ button {
     color: #bbb;
     font-size: 18px;
     margin-bottom: 15px;
+    text-decoration: none;
 }
 
 #last-updated {

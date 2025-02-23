@@ -17,3 +17,7 @@ function fetchJSON(url) {
 function ele(id) {
     return document.getElementById(id);
 }
+
+function getOrderKey(order) {
+    return order['player_name'] + ':' + order['item'] + ':' + order['order_type'] + ':' + order['x'] + ':' + order['y'] + ':' + order['z'];
+}
