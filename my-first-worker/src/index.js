@@ -27,7 +27,7 @@ export default {
 	
 				response.headers.set('Cache-Control','s-maxage=5');
 	
-				await cache.put(cacheKey,response.clone());
+				ctx.waitUntil(cache.put(cacheKey,response.clone()));
 			}
 			return response;
 		}
