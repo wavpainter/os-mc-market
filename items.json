@@ -52,12 +52,14 @@
     "GOLD_ORE": {
         "id": "14",
         "name": "Gold Ore",
-        "stack": 64
+        "stack": 64,
+        "alias": "GOLD"
     },
     "IRON_ORE": {
         "id": "15",
         "name": "Iron Ore",
-        "stack": 64
+        "stack": 64,
+        "alias": "IRON"
     },
     "COAL_ORE": {
         "id": "16",
