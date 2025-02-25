@@ -81,7 +81,7 @@ function find_location(x,y,z,locations) {
 let routeHandlers = {
 	'/market_data': async (request,env,ctx) => {
 		try {
-			let response = await fetch("https://storage.googleapis.com/os-mc-market/mall_shops.json", {
+			let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
