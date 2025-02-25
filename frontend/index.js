@@ -11,10 +11,10 @@ let hiddenChanged = false;
 
 // Data
 let timestamp = null;
-let aggregated = null;
 let locations = null;
 let hidden = null;
 let orders = null;
+let orders_itemCount = null;
 let items = null;
 let dataError = false;
 
@@ -123,14 +123,12 @@ function appendOrderListing(itemDetails,order,isHidden) {
 
 function displayItemListings() {
     if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars) && !hiddenChanged) 
-        && viewedItemName != null && hidden != null && viewedListingType != null && aggregated != null && items != null && orders != null) {
+        && viewedItemName != null && hidden != null && viewedListingType != null && items != null && orders != null) {
         usingOSMDollars = useOSMDollars;
         displayingViewedItem = true;
         hiddenChanged = false;
 
         let itemDetails = items[viewedItemName];
-        let itemAggregate = aggregated[viewedItemName];
-
         let itemOrders = orders.filter(order => {
             return order['item'] == viewedItemName && order['order_type'] == viewedListingType;
         })
@@ -192,7 +190,7 @@ function displayItemListings() {
 }
 
 function displayItems() {
-    if (!(displayingItems && (showUnlisted == showingUnlisted)) && aggregated != null && items != null) {
+    if (!(displayingItems && (showUnlisted == showingUnlisted)) && items != null && orders != null) {
         showingUnlisted = showUnlisted;
         displayingItems = true;
 
@@ -205,12 +203,15 @@ function displayItems() {
         let availableItemsTable = ele("item-table");
         Object.keys(items).forEach(itemName => {
             let item = items[itemName];
-            let aggregatedData = aggregated[itemName];
 
-            let sellCount = aggregatedData == undefined ? 0 : aggregatedData['Sell']['count'];
-            let buyCount = aggregatedData == undefined ? 0 : aggregatedData['Buy']['count'];
+            let itemCount = orders_itemCount[itemName];
+            if(itemCount == undefined) return;
 
-            if(!showUnlisted && sellCount == 0 && buyCount == 0) return;
+            let sellCount = itemCount['Sell'];
+            if(sellCount == undefined) sellCount == 0;
+
+            let buyCount = itemCount['Buy'];
+            if(buyCount == undefined) buyCount == 0;
 
             let itemBox = document.createElement('div');
             itemBox.classList.add('item-box');
@@ -292,14 +293,29 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    fetchJSON("https://storage.googleapis.com/os-mc-market/market_data.json").then(data => {
-        aggregated = data['aggregated'];
-        if(aggregated['DIAMOND']['Sell']['count'] != 0) {
-            diamondSellMedian = aggregated['DIAMOND']['Sell']['median'];
-            //ele('median-diamond-price').textContent = 'MDSP = $' + diamondSellMedian;
-        }
+    fetchJSON("https://api.os-mc-market.net/market_data").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
+
+        orders_itemCount = {};
+        orders.forEach(order => {
+            let x = orders_itemCount[order['item']];
+            if(x == undefined) {
+                x = {
+                    'Buy': 0,
+                    'Sell': 0
+                }
+            }
+
+            if(order['order_type'] == 'Buy') {
+                x['Buy']++;
+            } else {
+                x['Sell']++;
+            }
+
+            orders_itemCount[order['item']] = x;
+        })
+
         ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
         displayItems();
     }).catch(error => {
