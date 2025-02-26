@@ -482,8 +482,8 @@ button {
 }
 
 .stock-red {
-    background-image: linear-gradient(0deg,rgb(202, 0, 0) 0%,rgb(255, 157, 157) 100%);
-    border-color: rgb(177, 0, 0);
+    background-image: linear-gradient(0deg,rgb(196, 196, 196) 0%,rgb(255, 255, 255) 100%);
+    border-color: rgb(170, 170, 170);
 }
 
 .hover-cell {
