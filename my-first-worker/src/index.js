@@ -87,7 +87,8 @@ let routeHandlers = {
 					"Content-Type": "application/json",
 				}
 			});
-			const mallShops = await response.json();
+			const mallData = await response.json();
+			const mallShops = mallData['shops'];
 
 			response = await fetch("https://storage.googleapis.com/os-mc-market/locations.json");
 			const locations = await response.json();
@@ -101,9 +102,10 @@ let routeHandlers = {
 			})
 
 			let marketData = {
-				"timestamp": new Date().toISOString()
+				"timestamp": mallData['lastModified']
 			}
 
+			let signIndex = new Set();
 
 			let orders = [];
 			for(let i = 0; i < mallShops.length; i++) {
@@ -117,6 +119,13 @@ let routeHandlers = {
 				if(mallShop['canSell']) order_types_isbuy.push(false);
 
 				let item_name = items_nameLookup[mallShop['materialID']];
+
+				let signKey = mallShop['owner'] + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
+				if(signIndex.has(signKey)) {
+					continue;
+				}
+
+				signIndex.add(signKey);
 
 				order_types_isbuy.forEach(order_type_isbuy => {
 					orders.push({
@@ -179,6 +188,9 @@ export default {
 					response.headers.set("Access-Control-Allow-Origin", "*");
 					response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 				}
+				console.log("Generated");
+			} else {
+				console.log("Served from cache");
 			}
 
 

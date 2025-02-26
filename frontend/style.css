@@ -372,12 +372,12 @@ button {
 }
 
 .item-details-table {
-    width: 760px;
+    width: 750px;
     min-height: 100px;
-    padding-bottom: 25px;
     border-radius: 0 0 6px 6px;
     margin-left: auto;
     margin-right: auto;
+    padding: 0 5px 25px 5px;
     background-color: #eee;
     color: #222;
 }
@@ -391,11 +391,9 @@ button {
     border-collapse: collapse;
 }
 
-.listing-table-header {
+.listing-table-header > th {
     height: 35px;
-
-
-    border-width: 1px 0;
+    border-width: 0 0 1px 0;
     border-style: solid;
     border-color: #aaa;
 }
@@ -405,12 +403,24 @@ button {
 }
 
 .listing-table-cell {
-    height: 26px;
+    height: 28px;
+    position: relative;
     border-width: 1px 0;
     border-style: solid;
     border-color: #aaa;
     text-align: center;
 }
+
+.first-cell {
+    text-align: left;
+    padding-left: 15px
+}
+
+.listing-table-stock {
+    line-height:26px;
+}
+
+
 
 .table-icon {
     display: inline;
@@ -446,4 +456,39 @@ button {
     float:right;
     font-size: 10px;
     color: #888;
+}
+
+.stock-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-width: 1px;
+    border-style:solid;
+    border-radius: 6px;
+    margin: 0px 8px;
+}
+
+.stock-green {
+    background-image: linear-gradient(0deg,rgb(0, 202, 0) 0%,rgb(157, 255, 157) 100%);
+    border-color: rgb(0, 180, 0);
+}
+
+.stock-red {
+    background-image: linear-gradient(0deg,rgb(202, 0, 0) 0%,rgb(255, 157, 157) 100%);
+    border-color: rgb(177, 0, 0);
+}
+
+.hover-cell {
+    position:absolute;
+    top:0px;
+    left:0px;
+    height:27px;
+    line-height:27px;
+    width: 100%;
+    background-color:#eee;
+    display: none;
+}
+
+.listing-table-cell:hover > .hover-cell {
+    display: block;
 }
