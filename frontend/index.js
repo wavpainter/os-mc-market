@@ -13,11 +13,9 @@ let timestamp = null;
 let locations = null;
 let orders = null;
 let orders_itemCount = null;
+let orders_diamondMedian = null;
 let items = null;
 let dataError = false;
-
-// Other
-let diamondSellMedian = null;
 
 function viewItems() {
     let divAvailableItems = ele("listing-grid");
@@ -53,8 +51,8 @@ function viewItemListings(itemName,saleType) {
 
 
 function adjustPrice(price) {
-    if(useOSMDollars || price == 0 || diamondSellMedian == null) return "$" + price.toFixed(2);
-    else return (diamondSellMedian / price).toFixed(1);
+    if(useOSMDollars || price == 0 || orders_diamondMedian == null) return "$" + price.toFixed(2);
+    else return (orders_diamondMedian / price).toFixed(1);
 }
 
 function appendOrderListing(itemDetails,order) {
@@ -249,11 +247,14 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    fetchJSON("https://api.os-mc-market.net/market_data").then(data => {
+    fetchJSON("https://api.os-mc-market.net/market_data?cache=1").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
 
         orders_itemCount = {};
+
+        let diamond_sell_orders = [];
+        let diamond_sell_volume = 0;
         orders.forEach(order => {
             let x = orders_itemCount[order['item']];
             if(x == undefined) {
@@ -270,7 +271,29 @@ window.onload = event => {
             }
 
             orders_itemCount[order['item']] = x;
+
+            if(order['item'] == 'DIAMOND' && order['order_type'] == 'Sell') {
+                diamond_sell_orders.push(order);
+                diamond_sell_volume += order['stock'];
+            }
         })
+
+        diamond_sell_orders.sort((a,b) => {
+            return a['unit_price'] - b['unit_price']
+        });
+
+        let medianVolume = Math.floor(diamond_sell_volume / 2) + 1;
+        let current_volume = 0;
+        for(let i = 0; i < diamond_sell_orders.length; i++) {
+            current_volume+= diamond_sell_orders[i]['stock'];
+            if(current_volume > medianVolume) {
+                orders_diamondMedian = diamond_sell_orders[i]['unit_price'];
+                console.log('Median diamond order:');
+                console.log(diamond_sell_orders[i]);
+                break;
+            }
+        }
+        
 
         ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
         displayItems();

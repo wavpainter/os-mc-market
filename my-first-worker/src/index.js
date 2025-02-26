@@ -128,6 +128,7 @@ let routeHandlers = {
 				signIndex.add(signKey);
 
 				order_types_isbuy.forEach(order_type_isbuy => {
+					let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
 					orders.push({
 						"x": loc['x'],
 						"y": loc['y'],
@@ -135,7 +136,8 @@ let routeHandlers = {
 						"player_name": mallShop['owner'],
 						"quantity": mallShop['unit'],
 						"order_type": order_type_isbuy ? 'Sell' : 'Buy',
-						"price": order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'],
+						"price": price,
+						"unit_price": price / mallShop['unit'],
 						"item": item_name != undefined ? item_name : "undef",
 						"location": location,
 						"stock": mallShop['availableStock']
@@ -154,7 +156,7 @@ let routeHandlers = {
 };
 
 let cacheControls = {
-	'/market_data': 'public, max-age=60'
+	'/market_data': 'public, max-age=300'
 }
 
 export default {

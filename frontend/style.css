@@ -22,6 +22,12 @@ button {
     margin-right: auto;
 }
 
+#loading-symbol {
+    margin-top: 125px;
+    width: 150px;
+    height: 150px;
+}
+
 .content {
     background-color: rgb(0,0,0,0.2);
     min-height: 450px;
@@ -442,7 +448,7 @@ button {
 }
 
 .help-title {
-    color: goldenrod;
+    color: #daa520;
     font-style: italic;
     font-size: 24px;
 }
@@ -462,8 +468,8 @@ button {
 
 .stock-indicator {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-width: 1px;
     border-style:solid;
     border-radius: 6px;
