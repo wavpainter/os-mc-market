@@ -413,7 +413,9 @@ button {
 
 .first-cell {
     text-align: left;
-    padding-left: 15px
+    padding-left: 15px;
+    border-right-width: 1px;
+    border-right-style: dashed;
 }
 
 .listing-table-stock {
