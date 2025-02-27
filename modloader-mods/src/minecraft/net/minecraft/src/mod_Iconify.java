@@ -242,6 +242,9 @@ public class mod_Iconify extends BaseMod {
             }
         }
 
+        allItems.add(new ItemStack(18,1,3));
+        allItems.add(new ItemStack(6,1,4));
+
         return allItems;
     }
 }

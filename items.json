@@ -39,6 +39,11 @@
         "name": "Birch Sapling",
         "stack": 64
     },
+    "SAPLING:3": {
+        "id": "6:3",
+        "name": "Oak Sapling",
+        "stack": 64
+    },
     "SAND": {
         "id": "12",
         "name": "Sand",
@@ -89,6 +94,11 @@
     "LEAVES:1": {
         "id": "18:1",
         "name": "Spruce Leaves",
+        "stack": 64
+    },
+    "LEAVES:2": {
+        "id": "18:2",
+        "name": "Birch Leaves",
         "stack": 64
     },
     "SPONGE": {
