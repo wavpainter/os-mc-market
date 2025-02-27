@@ -214,6 +214,11 @@ export default {
 				}
 				console.log("Generated");
 			} else {
+				response = new Response(response.body,response);
+				let cacheControl = cacheControls[requestUrl.pathname];
+				if(cacheControl != undefined) {
+					response.headers.set('Cache-Control',cacheControl);
+				}
 				console.log("Served from cache");
 			}
 
