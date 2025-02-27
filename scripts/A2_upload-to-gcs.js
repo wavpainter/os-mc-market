@@ -16,3 +16,9 @@ let latestLocations = await read_file(config.locationsPath);
 console.log("Uploading locations.json");
 await upload("locations.json",latestLocations);
 await updateCacheControl("locations.json");
+
+let latestItems = await read_file(config.itemsPath);
+
+console.log("Uploading items.json");
+await upload("items.json",latestItems);
+await updateCacheControl("items.json");

@@ -6,6 +6,7 @@ const config = await read_json("config.json");
 const config_data = {
     scrapePath: config["scrapePath"],
     locationsPath: config["locationsPath"],
+    itemsPath: config["itemsPath"],
     gcsCredentialsPath: config["gcsCredentialsPath"],
     gcsBucketName: config["gcsBucketName"],
     localOutputPath: config["localOutputPath"]
