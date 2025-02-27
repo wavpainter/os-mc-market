@@ -283,8 +283,6 @@ window.onload = event => {
             current_volume+= diamond_sell_orders[i]['stock'];
             if(current_volume > medianVolume) {
                 orders_diamondMedian = diamond_sell_orders[i]['unit_price'];
-                console.log('Median diamond order:');
-                console.log(diamond_sell_orders[i]);
                 break;
             }
         }
