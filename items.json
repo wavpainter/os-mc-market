@@ -39,11 +39,6 @@
         "name": "Birch Sapling",
         "stack": 64
     },
-    "SAPLING:3": {
-        "id": "6:3",
-        "name": "Oak Sapling",
-        "stack": 64
-    },
     "SAND": {
         "id": "12",
         "name": "Sand",
