@@ -62,41 +62,36 @@ function appendOrderListing(itemDetails,order) {
     let cSeller = row.insertCell();
     let cUnit = row.insertCell();
     let cStack = row.insertCell();
-    let cLocation = row.insertCell();
     let cStock = row.insertCell();
+    let cLocation = row.insertCell();
+
+    cStock.classList.add('listing-table-cell');
+    cStock.classList.add('listing-table-stock');
 
     if(order['order_type'] == 'Sell') {
-        ele('stock-header').innerText = 'Stock'
 
-        cStock.classList.add('listing-table-cell');
-        cStock.classList.add('listing-table-stock');
-        let indicator = document.createElement('span');
-        indicator.classList.add('stock-indicator');
+
+        cStock.textContent = order['stock'];
+
         if(order['stock'] == 0) {
-            indicator.classList.add('stock-red');
-        } else {
-            indicator.classList.add('stock-green')
+            cStock.classList.add('stock-red');
         }
-        cStock.appendChild(indicator);
-        let stockLevel = document.createElement('span');
-        stockLevel.classList.add('hover-cell');
-        stockLevel.textContent = order['stock']
-        cStock.appendChild(stockLevel);
-    }else {
-        console.log(ele('stock-header'))
-        ele('stock-header').innerText = ''
     }
 
     
     cSeller.textContent = order['player_name'];
     cSeller.classList.add('listing-table-cell');
     cSeller.classList.add('first-cell');
+    cSeller.classList.add('left-align-cell');
     cUnit.textContent = adjustPrice(order['price'] / order['quantity']);
     cUnit.classList.add('listing-table-cell');
+    cUnit.classList.add('listing-table-price');
     cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity']);
     cStack.classList.add('listing-table-cell');
+    cStack.classList.add('listing-table-price');
     cLocation.textContent = order['location'].join(" > ");
     cLocation.classList.add('listing-table-cell');
+    cLocation.classList.add('hover-text');
 
     let coords = document.createElement('span');
     coords.classList.add('hover-cell')
@@ -127,12 +122,12 @@ function displayItemListings() {
             navigator.clipboard.writeText(itemDetails['id']);
         };
 
-        if(viewedListingType != 'Sell') {
+        if(viewedListingType == 'Buy') {
             ele('selling-tab').onclick = () => viewItemListings(viewedItemName,'Sell');
-        }
-
-        if(viewedListingType != 'Buy') {
+            ele('stock-header').innerText = ''
+        } else {
             ele('buying-tab').onclick = () => viewItemListings(viewedItemName,'Buy');
+            ele('stock-header').innerText = 'Stock'
         }
 
         /*
@@ -247,7 +242,7 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    fetchJSON("https://api.os-mc-market.net/market_data?cache=1").then(data => {
+    fetchJSON("https://api.os-mc-market.net/market_data").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
 

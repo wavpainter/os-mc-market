@@ -78,6 +78,8 @@ function find_location(x,y,z,locations) {
 	return location_arr;
 }
 
+let superTypeItems = new Set(['6','17','18','35','44','263','351']);
+
 let routeHandlers = {
 	'/market_data': async (request,env,ctx) => {
 		try {
@@ -118,7 +120,12 @@ let routeHandlers = {
 				if(mallShop['canBuy']) order_types_isbuy.push(true);
 				if(mallShop['canSell']) order_types_isbuy.push(false);
 
-				let item_name = items_nameLookup[mallShop['materialID']];
+				let itemId = `${mallShop['materialID']}`;
+				if(superTypeItems.has(itemId)) {
+					itemId = itemId + ':' + mallShop['durability'];
+				}
+
+				let item_name = items_nameLookup[itemId];
 
 				let signKey = mallShop['owner'] + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
 				if(signIndex.has(signKey)) {
@@ -139,6 +146,7 @@ let routeHandlers = {
 						"price": price,
 						"unit_price": price / mallShop['unit'],
 						"item": item_name != undefined ? item_name : "undef",
+						"itemID": itemId,
 						"location": location,
 						"stock": mallShop['availableStock']
 					})
@@ -155,9 +163,16 @@ let routeHandlers = {
 	}
 };
 
+let cacheKeyFns = {
+	'/market_data': request => {
+		let u = new URL(request.url);
+		return new Request(u.origin + u.pathname);
+	}
+};
+
 let cacheControls = {
 	'/market_data': 'public, max-age=300'
-}
+};
 
 export default {
 	async fetch(request, env, ctx) {
@@ -169,7 +184,14 @@ export default {
 			const cache = caches.default;
 
 			const requestUrl = new URL(request.url);
-			const cacheKey = new Request(request.url,request);
+
+			let cacheKeyFn = cacheKeyFns[requestUrl.pathname];
+			let cacheKey = null;
+			if(cacheKeyFn == undefined) {
+				cacheKey = new Request(request.url,request);
+			} else {
+				cacheKey = cacheKeyFn(request);
+			}
 	
 			response = await cache.match(cacheKey,request);
 	
