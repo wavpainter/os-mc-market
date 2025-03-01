@@ -10,45 +10,6 @@
 
 import deltas from "./deltas";
 
-const corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-	"Access-Control-Max-Age": "86400",
-};
-
-function handleOptions (request) {
-	// Make sure the necessary headers are present
-	// for this to be a valid pre-flight request
-	let headers = request.headers
-	if (
-			headers.get("Origin") !== null &&
-			headers.get("Access-Control-Request-Method") !== null &&
-			headers.get("Access-Control-Request-Headers") !== null
-	) {
-			// Handle CORS pre-flight request.
-			// If you want to check or reject the requested method + headers
-			// you can do that here.
-			let respHeaders = {
-					...corsHeaders,
-					// Allow all future content Request headers to go back to browser
-					// such as Authorization (Bearer) or X-Client-Name-Version
-					"Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers"),
-			}
-			return new Response(null, {
-					headers: respHeaders,
-			})
-	}
-	else {
-			// Handle standard OPTIONS request.
-			// If you want to allow other HTTP Methods, you can do that here.
-			return new Response(null, {
-					headers: {
-							Allow: "GET, HEAD, POST, OPTIONS",
-					},
-			})
-	}
-}
-
 // Get the location the item is being sold e.g. ['Mall',"Foo's Store"]
 function find_location(x,y,z,locations) {
 	let location_arr = [];
@@ -105,7 +66,7 @@ async function handleCron(event,env,ctx) {
 
 		// New data
 		let newCron = mallData['lastModified'];
-		let marketData = await mallToMarketData(mallData);
+		let marketData = await mallToMarketData(env.BUCKET,mallData);
 
 		// Push market data to bucket
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
@@ -157,29 +118,18 @@ async function handleCron(event,env,ctx) {
 	} catch (e) {
 		console.error("Error handling cron: ",e)
 	}
-
-/*		let latestCron = null, prevCron = null;
-	if(qres.results.length > 0) {
-		latestCron = qres.results[0].timestamp;
-		prevCron = qres.results[0].previous_cron_timestamp;
-	}else{
-		return;
-	}
-
-	let latestDeltas = await deltas.getCronDeltas(env.DB,latestCron,prevCron);
-*/
-
 }
 
+let superTypeItems = new Set(['6','17','18','35','44','263','351']);
 async function mallToMarketData(bucket,mallData) {
-	let response;
 	const mallShops = mallData['shops'];
+	let res;
 
-	let locationsStr = await bucket.get("locations.json");
-	const locations = JSON.parse(locationsStr);
+	res = await bucket.get("locations.json");
+	const locations = res.json();
 
-	let itemsStr = await bucket.get("items.json");
-	const items = JSON.parse(itemsStr);
+	res = await bucket.get("items.json");
+	const items = res.json();
 
 	const items_nameLookup = {};
 	Object.keys(items).forEach(item_name => {
@@ -241,83 +191,49 @@ async function mallToMarketData(bucket,mallData) {
 	return marketData;
 }
 
-let superTypeItems = new Set(['6','17','18','35','44','263','351']);
-
-let routeHandlers = {
-	'/market_data': async (request,env,ctx) => {
-		try {
-			let marketDataStr = await env.BUCKET.get("market_data.json");
-			return new Response(JSON.stringify(marketDataStr));
-		}catch(err) {
-			console.log(err);
-			return new Response(null,{ status: 500})
-		}
-	}
-};
-
-let cacheKeyFns = {
-	'/market_data': request => {
-		let u = new URL(request.url);
-		return new Request(u.origin + u.pathname);
-	}
-};
-
-let cacheControls = {
-	'/market_data': 'public, max-age=60'
-};
 
 export default {
 	async fetch(request, env, ctx) {
-		let response
-
-		if(request.method === "OPTIONS") {
-			response = handleOptions(request);
-		}else {
-			const cache = caches.default;
-
-			const requestUrl = new URL(request.url);
-
-			let cacheKeyFn = cacheKeyFns[requestUrl.pathname];
-			let cacheKey = null;
-			if(cacheKeyFn == undefined) {
-				cacheKey = new Request(request.url,request);
-			} else {
-				cacheKey = cacheKeyFn(request);
-			}
+		const url = new URL(request.url);
+		const key = url.pathname.slice(1);
+		const cache = caches.default;
+		let response;
 	
-			response = await cache.match(cacheKey,request);
-	
-			if (!response) {
-				let handler = routeHandlers[requestUrl.pathname];
-				if (handler != undefined) {
-					response = await handler(request,env,ctx);
-					let cacheControl = cacheControls[requestUrl.pathname];
-					if(cacheControl != undefined) {
-						response.headers.set('Cache-Control',cacheControl);
+		switch (request.method) {
+			case "GET":
+				response = await cache.match(request);
+				if(!response) {
+					const object = await env.BUCKET.get(key);
+		
+					if (object === null) {
+					  return new Response("Object Not Found", { status: 404 });
 					}
-					response.headers.set("Access-Control-Allow-Origin", "*");
-					response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-	
-					ctx.waitUntil(cache.put(cacheKey,response.clone()));
-				} else {
-					response = new Response(null,{status:404});
-					response.headers.set("Access-Control-Allow-Origin", "*");
-					response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-				}
-				console.log("Generated");
-			} else {
-				response = new Response(response.body,response);
-				let cacheControl = cacheControls[requestUrl.pathname];
-				if(cacheControl != undefined) {
-					response.headers.set('Cache-Control',cacheControl);
-				}
-				console.log("Served from cache");
-			}
+			
+					const headers = new Headers();
+					object.writeHttpMetadata(headers);
+					headers.set("etag", object.httpEtag);
+			
+					response = new Response(object.body, {
+					  headers,
+					});
+					response.headers.set('cache-control','public, max-age=60');
 
-
+					ctx.waitUntil(cache.put(request,response.clone()));
+				}else {
+					response = new Response(response.body,response);
+					response.headers.set('cache-control','public, max-age=60');
+				}
+				break;
+			default:
+				response = new Response("Method Not Allowed", {
+					status: 405,
+					headers: {
+					Allow: "GET",
+					},
+				});
+				break;
 		}
-
-
+		
 		return response;
 	},
 	async scheduled(event, env, ctx) {

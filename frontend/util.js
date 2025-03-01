@@ -21,3 +21,8 @@ function ele(id) {
 function getOrderKey(order) {
     return order['player_name'] + ':' + order['item'] + ':' + order['order_type'] + ':' + order['x'] + ':' + order['y'] + ':' + order['z'];
 }
+
+function adjustPrice(price,useOSMDollars,diamondMedian) {
+    if(useOSMDollars || price == 0 || diamondMedian == null) return "$" + price.toFixed(2);
+    else return (diamondMedian / price).toFixed(1);
+}

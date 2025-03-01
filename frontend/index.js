@@ -1,4 +1,5 @@
 // State machine
+let handledParams = false;
 let displayingItems = false;
 let displayingViewedItem = false;
 let viewedItemName = null;
@@ -15,6 +16,7 @@ let orders = null;
 let orders_itemCount = null;
 let orders_diamondMedian = null;
 let items = null;
+let items_idLookup = null;
 let dataError = false;
 
 function viewItems() {
@@ -50,11 +52,6 @@ function viewItemListings(itemName,saleType) {
 }
 
 
-function adjustPrice(price) {
-    if(useOSMDollars || price == 0 || orders_diamondMedian == null) return "$" + price.toFixed(2);
-    else return (orders_diamondMedian / price).toFixed(1);
-}
-
 function appendOrderListing(itemDetails,order) {
     let row = ele('listing-table').insertRow();
     row.classList.add('listing-table-row');
@@ -83,10 +80,10 @@ function appendOrderListing(itemDetails,order) {
     cSeller.classList.add('listing-table-cell');
     cSeller.classList.add('first-cell');
     cSeller.classList.add('left-align-cell');
-    cUnit.textContent = adjustPrice(order['price'] / order['quantity']);
+    cUnit.textContent = adjustPrice(order['price'] / order['quantity'],useOSMDollars,orders_diamondMedian);
     cUnit.classList.add('listing-table-cell');
     cUnit.classList.add('listing-table-price');
-    cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity']);
+    cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity'],useOSMDollars,orders_diamondMedian);
     cStack.classList.add('listing-table-cell');
     cStack.classList.add('listing-table-price');
     cLocation.textContent = order['location'].join(" > ");
@@ -130,17 +127,6 @@ function displayItemListings() {
             ele('stock-header').innerText = 'Stock'
         }
 
-        /*
-        ele('listing-orders').textContent = viewedListingType + " Orders:";
-
-        if(count == 0) {
-            ele('listing-mean').textContent = "Mean: NaN";
-            ele('listing-median').textContent = "Median: NaN";
-        } else {
-            ele('listing-mean').textContent = "Mean: " + adjustPrice(itemAggregate[viewedListingType]['mean']);
-            ele('listing-median').textContent = "Median: " + adjustPrice(itemAggregate[viewedListingType]['median']);
-        }
-        */
         let table = ele('listing-table')
         let rows = table.rows
         for(let i = rows.length - 1; i > 0; i--) {
@@ -217,6 +203,29 @@ function displayItems() {
     }
 }
 
+let viewMap = {
+    "buying": "Buy",
+    "selling": "Sell"
+}
+
+function handleParams() {
+    if (!(handledParams) && items != null && orders != null) {
+        handleParams = true;
+
+        let params = new URLSearchParams(document.location.search);
+        let item = params.get("item");
+        let view = params.get("view");
+
+        if(item == null || view == null) return;
+        item = item.toUpperCase();
+        view = view.toLowerCase();
+
+        if(items[item] == undefined || viewMap[view] == undefined) return;
+
+        viewItemListings(item,viewMap[view]);
+    }
+}
+
 function updateUnits() {
     useOSMDollars = !ele('units-option').checked;
     displayItemListings();
@@ -290,6 +299,7 @@ window.onload = event => {
 
         ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
         displayItems();
+        handleParams();
     }).catch(error => {
         console.error(error);
         dataError = true;
@@ -302,8 +312,14 @@ window.onload = event => {
     });
     fetchJSON("/items/items.json").then(data => {
         items = data;
+        items_idLookup = {};
+        Object.keys(items).forEach(item => {
+            items_idLookup[item['id']] = item;
+        })
+
         displayItems();
         displayItemListings();
+        handleParams();
     }).catch(error => {
         console.error(error);
         dataError = true;
