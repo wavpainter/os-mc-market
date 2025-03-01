@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="/style.css?cache=7" />
         <link rel="stylesheet" href="/slider.css?cache=7" />
         <script src="/util.js?cache=7"></script>
-        <script src="/index.js?cache=7"></script>
+        <script src="/recent.js?cache=7"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Nuosu+SIL&display=swap" rel="stylesheet">
@@ -53,7 +53,38 @@
         </div>
         
         <div class="container">
-            
+            <div class="listing-options">
+                <div class="include-title">
+                    Recently Updated
+                </div>
+                <a href="javascript:void(0);" class="recent-tag include-option new-shop disabled">
+                    New Shop
+                </a>
+                <a href="javascript:void(0);" class="recent-tag include-option restocked">
+                    Restocked
+                </a>
+                <a href="javascript:void(0);" class="recent-tag include-option improved-prices">
+                    Improved Prices
+                </a>
+                <a href="javascript:void(0);" class="recent-tag include-option out-of-stock">
+                    Out of Stock
+                </a>
+
+            </div>
+            <div id="recent-log" class="content recent-log">
+                <a href="/?item=diamond&view=selling" class="btn nav-box-gradient rlog">
+                    <div class="recent-tag recent-tag-inline new-shop">New Shop</div>
+                    <div class="recent-time">5h ago</div>
+                    <img class="recent-icon" src="/items/264.png" />
+                    <div class="log-text ">wavpainter is <span class="sell-count">Selling</span> Diamonds</div>
+                </a>
+                <a href="/?item=diamond&view=buying" class="btn nav-box-gradient rlog">
+                    <div class="recent-tag recent-tag-inline improved-prices">Improved Prices</div>
+                    <div class="recent-time">5h ago</div>
+                    <img class="recent-icon" src="/items/262.png" />
+                    <div class="log-text ">wavpainter is <span class="buy-count">Buying</span> Diamonds</div>
+                </a>
+            </div>
         </div>
     </body>
 </html>

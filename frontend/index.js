@@ -1,3 +1,6 @@
+// Env
+let APIORIGIN = "http://127.0.0.1:8787"
+
 // State machine
 let handledParams = false;
 let displayingItems = false;
@@ -154,7 +157,6 @@ function displayItems() {
 
         // Display items
         view = "items";
-        let availableItemsTable = ele("item-table");
         Object.keys(items).forEach(itemName => {
             let item = items[itemName];
 
@@ -199,6 +201,7 @@ function displayItems() {
                 viewItemListings(itemName,"Buy");
             }
             itemBox.appendChild(itemBoxBuy);
+
         })
     }
 }
@@ -213,10 +216,12 @@ function handleParams() {
         handleParams = true;
 
         let params = new URLSearchParams(document.location.search);
+
         let item = params.get("item");
         let view = params.get("view");
+        if(view == null) view = "selling";
 
-        if(item == null || view == null) return;
+        if(item == null) return;
         item = item.toUpperCase();
         view = view.toLowerCase();
 
@@ -251,7 +256,7 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    fetchJSON("https://api.os-mc-market.net/market_data.json").then(data => {
+    fetchJSON(APIORIGIN + "/market_data.json").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
 
@@ -306,13 +311,13 @@ window.onload = event => {
         console.error(error);
         dataError = true;
     });
-    fetchJSON("https://api.os-mc-market.net/locations.json").then(data => {
+    fetchJSON(APIORIGIN + "/locations.json").then(data => {
         locations = data;
     }).catch(error => {
         console.error(error);
         dataError = true;
     });
-    fetchJSON("https://api.os-mc-market.net/items.json").then(data => {
+    fetchJSON(APIORIGIN + "/items.json").then(data => {
         items = data;
         items_idLookup = {};
         Object.keys(items).forEach(item => {

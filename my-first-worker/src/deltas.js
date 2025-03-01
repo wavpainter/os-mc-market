@@ -41,6 +41,7 @@ async function getCronDeltas(db,cron,prevCron) {
     .bind(prevCron)
     .all();
 
+
     let prevShopStockLookup = {};
     if(qres.results.length == 0)  return [];
     qres.results.forEach(shop_stock => {
@@ -62,6 +63,11 @@ async function getCronDeltas(db,cron,prevCron) {
             })
         } else {
             if(shop["orderType"] == "Sell") {
+                if(shop['playerName'] == 'wavpainter') {
+                    console.log(prevShopStock)
+
+                }
+
                 if(prevShopStock.stock == 0 && shopStock.stock > 0) {
                     deltas.push({
                         shop,

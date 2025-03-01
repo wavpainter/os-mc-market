@@ -1,3 +1,6 @@
+// Env
+let APIORIGIN = "http://127.0.0.1:8787"
+
 // State machine
 
 // Data
@@ -8,21 +11,21 @@ let dataError = false;
 
 window.onload = event => {
     
-    fetchJSON("https://api.os-mc-market.net/locations.json").then(data => {
+    fetchJSON(APIORIGIN + "/locations.json").then(data => {
         locations = data;
     }).catch(error => {
         console.error(error);
         dataError = true;
     });
 
-    fetchJSON("/items/items.json").then(data => {
+    fetchJSON(APIORIGIN + "/items.json").then(data => {
         items = data;
     }).catch(error => {
         console.error(error);
         dataError = true;
     });
 
-    fetchJSON("https://api.os-mc-market.net/recent_updates.json").then(data => {
+    fetchJSON(APIORIGIN + "/recent_updates.json").then(data => {
         recent = data;
     }).catch(error => {
         console.error(error);

@@ -81,6 +81,9 @@ function find_location(x,y,z,locations) {
 }
 
 async function handleCron(event,env,ctx) {
+	let timestamp24h = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+	let deltas24h = await deltas.getCronDeltasFrom(env.DB,timestamp24h.toISOString());
+
 	try{
 		// Get mall data
 		let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
@@ -105,9 +108,9 @@ async function handleCron(event,env,ctx) {
 
 		// New data
 		let newCron = mallData['lastModified'];
-		let marketData = await mallToMarketData(env.BUCKET,mallData);
 
 		// Push market data to bucket
+		let marketData = await mallToMarketData(env.BUCKET,mallData);
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
 		
 		// Create shops that don't exist already
@@ -143,7 +146,7 @@ async function handleCron(event,env,ctx) {
 			qres = await env.DB.prepare(
 				"INSERT INTO shop_stock (shop_id,cron_timestamp,quantity,price,stock) VALUES (?,?,?,?,?)"
 			)
-			.bind(shopId,newCron,order['quantity'],order['price'],order['itemID'])
+			.bind(shopId,newCron,order['quantity'],order['price'],order['stock'])
 			.all();
 		}
 
@@ -165,10 +168,10 @@ async function mallToMarketData(bucket,mallData) {
 	let res;
 
 	res = await bucket.get("locations.json");
-	const locations = res.json();
+	const locations = await res.json();
 
 	res = await bucket.get("items.json");
-	const items = res.json();
+	const items = await res.json();
 
 	const items_nameLookup = {};
 	Object.keys(items).forEach(item_name => {

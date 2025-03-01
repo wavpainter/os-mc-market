@@ -4,8 +4,7 @@ html {
 
 body {
     margin: 0;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;    
     background-blend-mode: multiply;
     background-image: url('/images/cobble.png');
     background-color: #666;
@@ -234,7 +233,7 @@ button {
 }
 
 .sell-count {
-    color:#a44;
+    color:rgb(196, 79, 79);
     font-weight:bold;
 }
 .buy-count {
@@ -499,4 +498,91 @@ button {
 .hover-text {
     text-decoration: underline dotted #aaa;
     text-decoration-thickness: 1px;
+}
+
+
+.include-title {
+    line-height:65px;
+    float:left;
+    color:#ddd;
+    font-size:18pt;
+    margin-right:10px;
+
+}
+
+.recent-tag {
+    padding: 0 10px;
+    height:34px;
+    font-size: 14px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight:bold;
+    text-shadow: 0 1px 2px rgba(0,0,0, 0.5);
+    line-height:34px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.185);
+
+
+}
+
+.recent-tag-inline {
+    margin-left:10px;
+    margin-right:10px;
+    margin-top:8px;
+    float:right;
+}
+
+.recent-time {
+    color: #333;
+    float:right;
+}
+
+.include-option {
+    margin-left: 12px;
+    margin-top:15px;
+    text-decoration: none;
+    float:left;
+}
+
+.rlog {
+    float:left;
+    margin-left: 10px;
+    margin-top:10px;
+    height:50px;
+    width: 780px;
+    line-height:50px;
+    text-decoration: none;
+}
+
+.log-text {
+    color: #333;
+}
+
+.recent-icon {
+    width:32px;
+    height:32px;
+    margin-top: 9px;
+    margin-left: 5px;
+    margin-right: 8px;
+    float:left;
+}
+
+.new-shop {
+    background-color: rgb(72, 182, 255);
+}
+
+.out-of-stock {
+    background-color: rgb(255, 76, 76);
+}
+
+.restocked {
+    background-color: rgb(164, 240, 78);
+}
+
+.improved-prices {
+    background-color: rgb(255, 221, 72);
+}
+
+.disabled {
+    color: #888;
+    background-color: #313131;
 }
