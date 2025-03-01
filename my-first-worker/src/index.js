@@ -10,6 +10,45 @@
 
 import deltas from "./deltas";
 
+const corsHeaders = {
+	"Access-Control-Allow-Origin": "*",
+	"Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+	"Access-Control-Max-Age": "86400",
+};
+
+function handleOptions (request) {
+	// Make sure the necessary headers are present
+	// for this to be a valid pre-flight request
+	let headers = request.headers
+	if (
+			headers.get("Origin") !== null &&
+			headers.get("Access-Control-Request-Method") !== null &&
+			headers.get("Access-Control-Request-Headers") !== null
+	) {
+			// Handle CORS pre-flight request.
+			// If you want to check or reject the requested method + headers
+			// you can do that here.
+			let respHeaders = {
+					...corsHeaders,
+					// Allow all future content Request headers to go back to browser
+					// such as Authorization (Bearer) or X-Client-Name-Version
+					"Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers"),
+			}
+			return new Response(null, {
+					headers: respHeaders,
+			})
+	}
+	else {
+			// Handle standard OPTIONS request.
+			// If you want to allow other HTTP Methods, you can do that here.
+			return new Response(null, {
+					headers: {
+							Allow: "GET, HEAD, POST, OPTIONS",
+					},
+			})
+	}
+}
+
 // Get the location the item is being sold e.g. ['Mall',"Foo's Store"]
 function find_location(x,y,z,locations) {
 	let location_arr = [];
@@ -200,6 +239,9 @@ export default {
 		let response;
 	
 		switch (request.method) {
+			case "OPTIONS":
+				response = handleOptions(request);
+				break;
 			case "GET":
 				response = await cache.match(request);
 				if(!response) {
@@ -217,11 +259,15 @@ export default {
 					  headers,
 					});
 					response.headers.set('cache-control','public, max-age=60');
+					response.headers.set("Access-Control-Allow-Origin", "*");
+					response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 
 					ctx.waitUntil(cache.put(request,response.clone()));
 				}else {
 					response = new Response(response.body,response);
 					response.headers.set('cache-control','public, max-age=60');
+					response.headers.set("Access-Control-Allow-Origin", "*");
+					response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 				}
 				break;
 			default:

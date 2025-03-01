@@ -251,9 +251,11 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    fetchJSON("https://api.os-mc-market.net/market_data").then(data => {
+    fetchJSON("https://api.os-mc-market.net/market_data.json").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
+
+        console.log(orders);
 
         orders_itemCount = {};
 
@@ -304,13 +306,13 @@ window.onload = event => {
         console.error(error);
         dataError = true;
     });
-    fetchJSON("https://storage.googleapis.com/os-mc-market/locations.json").then(data => {
+    fetchJSON("https://api.os-mc-market.net/locations.json").then(data => {
         locations = data;
     }).catch(error => {
         console.error(error);
         dataError = true;
     });
-    fetchJSON("/items/items.json").then(data => {
+    fetchJSON("https://api.os-mc-market.net/items.json").then(data => {
         items = data;
         items_idLookup = {};
         Object.keys(items).forEach(item => {
