@@ -9,7 +9,12 @@
 	"compatibility_date": "2025-02-14",
 	"observability": {
 		"enabled": true
-	}
+	},
+  "triggers": {
+    "crons": [
+      "* * * * *"
+    ]
+  },
   /**
    * Smart Placement
    * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -22,6 +27,22 @@
    * databases, object storage, AI inference, real-time communication and more.
    * https://developers.cloudflare.com/workers/runtime-apis/bindings/
    */
+   "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "os-mc-market",
+        "database_id": "0fe7ed1d-a8f1-46ff-9f9d-ab198708fc70",
+        "preview_database_id": "13214824-83de-41f0-8cc5-c20290827da0",        
+      }
+   ],
+
+   "r2_buckets": [
+      {
+        "binding": "BUCKET",
+        "bucket_name": "os-mc-market",
+        "preview_bucket_name": "dev-os-mc-market"
+      }
+    ]
 
   /**
    * Environment Variables

@@ -1,4 +1,0 @@
-CREATE TABLE IF NOT EXISTS "Shop" (
-    "Id" INTEGER PRIMARY KEY,
-    ""
-)

@@ -8,6 +8,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import deltas from "./deltas";
+
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",
 	"Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
@@ -78,84 +80,174 @@ function find_location(x,y,z,locations) {
 	return location_arr;
 }
 
+async function handleCron(event,env,ctx) {
+	try{
+		// Get mall data
+		let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			}
+		});
+		const mallData = await response.json();
+
+		let qres;
+		// Get latest cron
+		qres = await env.DB.prepare(
+			"SELECT * FROM cron ORDER BY datetime(timestamp) DESC"
+		)
+		.all();
+		let latestCron = qres.results.length > 0 ? qres.results[0].timestamp : null;
+		if(latestCron != null && new Date(latestCron).getTime() == new Date(mallData['lastModified']).getTime()) {
+			// Stale data
+			return;
+		}
+
+		// New data
+		let newCron = mallData['lastModified'];
+		let marketData = await mallToMarketData(mallData);
+
+		// Push market data to bucket
+		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
+		
+		// Create shops that don't exist already
+		for(let i = 0; i < marketData['orders'].length; i++) {
+			let order = marketData['orders'][i];
+			qres = await env.DB.prepare(
+				"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES (?,?,?,?,?,?)"
+			)
+			.bind(order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID'])
+			.all();
+		}
+
+		// Create cron
+		qres = await env.DB.prepare(
+			"INSERT INTO cron (timestamp,previous_cron_timestamp) VALUES (?,?)"
+		)
+		.bind(newCron,latestCron)
+		.all();
+
+		// Add stock details for current shops
+		for(let i = 0; i < marketData['orders'].length; i++) {
+			let order = marketData['orders'][i];
+
+			qres = await env.DB.prepare(
+				"SELECT id FROM shop WHERE (player,x,y,z,order_type,item_id) = (?,?,?,?,?,?)"
+			)
+			.bind(order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID'])
+			.all();
+
+			if(qres.results.length == 0) continue;
+			let shopId = qres.results[0].id;
+
+			qres = await env.DB.prepare(
+				"INSERT INTO shop_stock (shop_id,cron_timestamp,quantity,price,stock) VALUES (?,?,?,?,?)"
+			)
+			.bind(shopId,newCron,order['quantity'],order['price'],order['itemID'])
+			.all();
+		}
+
+		// Generate updated deltas
+		let timestamp24h = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+		let deltas24h = await deltas.getCronDeltasFrom(env.DB,timestamp24h.toISOString());
+	
+		await env.BUCKET.put("recent_updates.json",JSON.stringify(deltas24h));
+
+		console.log("Finished handling cron");
+	} catch (e) {
+		console.error("Error handling cron: ",e)
+	}
+
+/*		let latestCron = null, prevCron = null;
+	if(qres.results.length > 0) {
+		latestCron = qres.results[0].timestamp;
+		prevCron = qres.results[0].previous_cron_timestamp;
+	}else{
+		return;
+	}
+
+	let latestDeltas = await deltas.getCronDeltas(env.DB,latestCron,prevCron);
+*/
+
+}
+
+async function mallToMarketData(bucket,mallData) {
+	let response;
+	const mallShops = mallData['shops'];
+
+	let locationsStr = await bucket.get("locations.json");
+	const locations = JSON.parse(locationsStr);
+
+	let itemsStr = await bucket.get("items.json");
+	const items = JSON.parse(itemsStr);
+
+	const items_nameLookup = {};
+	Object.keys(items).forEach(item_name => {
+		items_nameLookup[items[item_name]['id']] = item_name;
+	})
+
+	let marketData = {
+		"timestamp": mallData['lastModified']
+	}
+
+	let signIndex = new Set();
+
+	let orders = [];
+	for(let i = 0; i < mallShops.length; i++) {
+		let mallShop = mallShops[i];
+
+		let loc = mallShop["location"];
+		let location = find_location(loc['x'],loc['y'],loc['z'],locations);
+
+		let order_types_isbuy = []
+		if(mallShop['canBuy']) order_types_isbuy.push(true);
+		if(mallShop['canSell']) order_types_isbuy.push(false);
+
+		let itemId = `${mallShop['materialID']}`;
+		if(superTypeItems.has(itemId)) {
+			itemId = itemId + ':' + mallShop['durability'];
+		}
+
+		let item_name = items_nameLookup[itemId];
+
+		let signKey = mallShop['owner'] + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
+		if(signIndex.has(signKey)) {
+			continue;
+		}
+
+		signIndex.add(signKey);
+
+		order_types_isbuy.forEach(order_type_isbuy => {
+			let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
+			orders.push({
+				"x": loc['x'],
+				"y": loc['y'],
+				"z": loc['z'],
+				"player_name": mallShop['owner'],
+				"quantity": mallShop['unit'],
+				"order_type": order_type_isbuy ? 'Sell' : 'Buy',
+				"price": price,
+				"unit_price": price / mallShop['unit'],
+				"item": item_name != undefined ? item_name : "undef",
+				"itemID": itemId,
+				"location": location,
+				"stock": mallShop['availableStock']
+			})
+		})
+	}
+
+	marketData["orders"] = orders;
+
+	return marketData;
+}
+
 let superTypeItems = new Set(['6','17','18','35','44','263','351']);
 
 let routeHandlers = {
 	'/market_data': async (request,env,ctx) => {
 		try {
-			let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				}
-			});
-			const mallData = await response.json();
-			const mallShops = mallData['shops'];
-
-			response = await fetch("https://storage.googleapis.com/os-mc-market/locations.json");
-			const locations = await response.json();
-
-			response = await fetch("https://storage.googleapis.com/os-mc-market/items.json");
-			const items = await response.json();
-
-			const items_nameLookup = {};
-			Object.keys(items).forEach(item_name => {
-				items_nameLookup[items[item_name]['id']] = item_name;
-			})
-
-			let marketData = {
-				"timestamp": mallData['lastModified']
-			}
-
-			let signIndex = new Set();
-
-			let orders = [];
-			for(let i = 0; i < mallShops.length; i++) {
-				let mallShop = mallShops[i];
-
-				let loc = mallShop["location"];
-				let location = find_location(loc['x'],loc['y'],loc['z'],locations);
-
-				let order_types_isbuy = []
-				if(mallShop['canBuy']) order_types_isbuy.push(true);
-				if(mallShop['canSell']) order_types_isbuy.push(false);
-
-				let itemId = `${mallShop['materialID']}`;
-				if(superTypeItems.has(itemId)) {
-					itemId = itemId + ':' + mallShop['durability'];
-				}
-
-				let item_name = items_nameLookup[itemId];
-
-				let signKey = mallShop['owner'] + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
-				if(signIndex.has(signKey)) {
-					continue;
-				}
-
-				signIndex.add(signKey);
-
-				order_types_isbuy.forEach(order_type_isbuy => {
-					let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
-					orders.push({
-						"x": loc['x'],
-						"y": loc['y'],
-						"z": loc['z'],
-						"player_name": mallShop['owner'],
-						"quantity": mallShop['unit'],
-						"order_type": order_type_isbuy ? 'Sell' : 'Buy',
-						"price": price,
-						"unit_price": price / mallShop['unit'],
-						"item": item_name != undefined ? item_name : "undef",
-						"itemID": itemId,
-						"location": location,
-						"stock": mallShop['availableStock']
-					})
-				})
-			}
-
-			marketData["orders"] = orders;
-
-			return new Response(JSON.stringify(marketData));
+			let marketDataStr = await env.BUCKET.get("market_data.json");
+			return new Response(JSON.stringify(marketDataStr));
 		}catch(err) {
 			console.log(err);
 			return new Response(null,{ status: 500})
@@ -171,7 +263,7 @@ let cacheKeyFns = {
 };
 
 let cacheControls = {
-	'/market_data': 'public, max-age=300'
+	'/market_data': 'public, max-age=60'
 };
 
 export default {
@@ -228,4 +320,7 @@ export default {
 
 		return response;
 	},
+	async scheduled(event, env, ctx) {
+		ctx.waitUntil(handleCron(event,env,ctx));
+	}
 };

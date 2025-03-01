@@ -1,1 +1,0 @@
-create_all_tables -- Create all tables
