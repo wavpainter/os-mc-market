@@ -49,7 +49,7 @@ function displayRecentLog() {
                 let recentTimeEle = document.createElement('div');
                 recentTimeEle.classList.add('recent-time');
                 if(hoursSince == 0) {
-                    recentTimeEle.innerText = "Just Now";
+                    recentTimeEle.innerText = "Recent";
                 }else {
                     recentTimeEle.innerText = `${hoursSince}h ago`
                 }
