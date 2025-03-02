@@ -1,0 +1,1 @@
+SELECT shop_id, MAX(timestamp) AS latest_timestamp FROM shop_stock GROUP BY shop_id;

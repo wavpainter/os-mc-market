@@ -1,85 +1,57 @@
 
-async function getCronDeltas(db,cron,prevCron,shopLookup,oldShopId) {
-    if(cron == null || prevCron == null) return [];
-
-    let qres;
-
-    // Get shop stocks
-    let getShopStockStatement = db.prepare(
-        "SELECT * FROM shop_stock WHERE datetime(cron_timestamp) = datetime(?)"
-    );
-
-    // Currrent stock
-    qres = await getShopStockStatement
-    .bind(cron)
-    .all();
-
-    let shopStocks = [];
-    if(qres.results.length == 0) return [];
-    shopStocks = qres.results;
-
+async function getCronDeltas(deltas,shopLookup) {
     // Compare to previous stock and generate deltas
-    let deltas = [];
-    for(let i = 0; i < shopStocks.length; i++) {
-        let shopStock = shopStocks[i];
-        let shopId = shopStock.shop_id;
+    let logs = [];
+    for(let i = 0; i < deltas.length; i++) {
+        let delta = deltas[i];
+        let shopId = delta.shop_id;
         let shop = shopLookup[shopId];
 
-        if(shop == undefined) continue;
+        if(delta.quantity == 0 || shop == undefined) continue;
 
-        qres = await db.prepare(
-            "SELECT * FROM shop_stock WHERE shop_id = ? AND datetime(cron_timestamp) <= datetime(?) ORDER BY datetime(cron_timestamp) DESC LIMIT 1"
-        )
-        .bind(shopId,prevCron)
-        .all();
+        if(delta.prev_shop_id == null) {
+            let unitPrice = delta.price / delta.quantity;
 
-        let prevShopStocks = qres.results;
-
-        if(prevShopStocks.length == 0) {
-            let unitPrice = shopStock.price / shopStock.quantity;
-
-            deltas.push({
+            logs.push({
                 shop,
-                at: cron,
+                at: delta.timestamp,
                 type: "New",
                 unitPrice
             })
         } else {
-            let prevShopStock = prevShopStocks[0];
-
             if(shop["orderType"] == "Sell") {
 
-                if(prevShopStock.stock == 0 && shopStock.stock > 0) {
-                    deltas.push({
+                if(delta.prev_stock == 0 && delta.stock > 0) {
+                    logs.push({
                         shop,
-                        at: cron,
+                        at: delta.timestamp,
                         type: "Restocked",
                     })
-                } else if(prevShopStock.stock > 0 && shopStock.stock == 0) {
-                    deltas.push({
+                } else if(delta.prev_stock > 0 && delta.stock == 0) {
+                    logs.push({
                         shop,
-                        at: cron,
+                        at: delta.timestamp,
                         type: "Out of Stock"
                     })
                 }
             }
 
-            if(prevShopStock.quantity != 0) {
-                let prevUnitPrice = prevShopStock.price / prevShopStock.quantity;
-                let unitPrice = shopStock.price / shopStock.quantity;
+            if(delta.prev_quantity != 0) {
+                let prevUnitPrice = delta.prev_price / delta.prev_quantity;
+                let unitPrice = delta.price / delta.quantity;
 
                 if(prevUnitPrice < unitPrice) {
-                    deltas.push({
+                    logs.push({
                         shop,
-                        at: cron,
+                        at: delta.timestamp,
                         type: "New Price",
                         prevUnitPrice,
                         unitPrice
                     })
                 }else if(unitPrice < prevUnitPrice) {
-                    deltas.push({
+                    logs.push({
                         shop,
-                        at: cron,
+                        at: delta.timestamp,
                         type: "New Price",
                         prevUnitPrice,
                         unitPrice
@@ -89,28 +61,7 @@ async function getCronDeltas(db,cron,prevCron,shopLookup,oldShopId) {
         }
     }
 
-    return deltas;
+    return logs;
 }
 
-async function getCronDeltasFrom(db,t0,shopLookup,oldShopId) {
-    let qres;
-
-    // Get all recent stock
-    qres = await db.prepare(
-        "SELECT * FROM shop_stock WHERE datetime(timestamp) > datetime(?)"
-    )
-    .bind(t0)
-    .all();
-
-    let deltas = []
-
-    for(let i = 0; i < qres.results.length; i++) {
-        let cron = qres.results[i];
-        let cronDeltas = await getCronDeltas(db,cron.timestamp,cron.previous_cron_timestamp,shopLookup,oldShopId);
-        deltas.push(...cronDeltas);
-    }
-
-    return deltas;
-}
-
-export default {getCronDeltas,getCronDeltasFrom};
+export default {getCronDeltas};

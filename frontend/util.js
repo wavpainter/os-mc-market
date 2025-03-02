@@ -37,11 +37,28 @@ let viewOrderMap = {
     "selling": "Sell"
 }
 
+let orderClassMap = {
+    'Sell': 'sell-count',
+    'Buy': 'buy-count'
+}
+
 function generateLogText(log,itemName,items) {
     let item = items[itemName];
     let playerName = log.shop.playerName;
     let orderType = log.shop.orderType;
     let commonItemName = item == undefined ? "undef" : item.name;
+
+    let itemPriceText;
+    if(log.unitPrice != null) {
+        let stackSize = item.stack;
+        let stackPrice = log.unitPrice * stackSize;
+
+        if(log.unitPrice < 1) {
+            itemPriceText = adjustPrice(stackPrice,true,null) + ' per stack'
+        } else {
+            itemPriceText = adjustPrice(log.unitPrice,true,null) + ' each';
+        }
+    }
 
     switch(log['type']) {
         case "Restocked":
@@ -61,9 +78,9 @@ function generateLogText(log,itemName,items) {
             let dir = percentChange < 0 ? 'less' : 'more';
             let positivePercentChange = Math.abs(percentChange);
 
-            return `${playerName} is ${orderViewMap[orderType]} ${commonItemName} for ${positivePercentChange} ${dir}.`;
+            return `${playerName} is ${orderViewMap[orderType]} ${commonItemName} for ${itemPriceText} (${positivePercentChange} ${dir}).`;
         
         case "New":
-            return `${log.shop.playerName}'s shop is ${orderViewMap[orderType]} ${commonItemName}.`;
+            return `${log.shop.playerName} is <span class="${orderClassMap[orderType]}">${orderViewMap[orderType]}</span> ${commonItemName} for ${itemPriceText}.`;
     }
 }

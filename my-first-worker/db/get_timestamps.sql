@@ -1,0 +1,1 @@
+SELECT timestamp, count(timestamp) AS stock_count FROM shop_stock GROUP BY timestamp ORDER BY datetime(timestamp) DESC;

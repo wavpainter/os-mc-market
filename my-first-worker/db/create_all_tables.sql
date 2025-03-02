@@ -18,22 +18,15 @@ CREATE INDEX IF NOT EXISTS idx_shop_z ON shop(z);
 CREATE INDEX IF NOT EXISTS idx_shop_ordertype ON shop(order_type);
 CREATE INDEX IF NOT EXISTS idx_shop_itemid ON shop(item_id);
 
-/* Cron */
-CREATE TABLE IF NOT EXISTS cron (
-    timestamp TEXT NOT NULL,
-    previous_cron_timestamp TEXT NULL,
-    PRIMARY KEY (timestamp),
-    FOREIGN KEY (previous_cron_timestamp) REFERENCES cron(timestamp)
-);
-
 /* Shop Stock */
 CREATE TABLE IF NOT EXISTS shop_stock (
     shop_id INTEGER NOT NULL,
-    cron_timestamp TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    prev_timestamp INTEGER NULL,
     quantity INTEGER NOT NULL,
     price REAL NOT NULL,
     stock INTEGER NOT NULL,
     FOREIGN KEY (shop_id) REFERENCES shop(id),
-    FOREIGN KEY (cron_timestamp) REFERENCES cron(timestamp),
-    PRIMARY KEY (shop_id, cron_timestamp)
+    FOREIGN KEY (shop_id, prev_timestamp) REFERENCES shop_stock (shop_id,timestamp),
+    PRIMARY KEY (shop_id, timestamp)
 );

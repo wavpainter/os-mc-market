@@ -257,8 +257,6 @@ window.onload = event => {
         orders = data['orders'];
         timestamp = data['timestamp'];
 
-        console.log(orders);
-
         orders_itemCount = {};
 
         let diamond_sell_orders = [];
@@ -328,4 +326,13 @@ window.onload = event => {
         console.error(error);
         dataError = true;
     });
+    fetchJSON(APIORIGIN + "/recent.json").then(data => {
+        let nRecent = data.length;
+        if(nRecent != undefined) {
+            let recentEle = ele("recent-offers-count");
+            recentEle.innerText = nRecent;
+            recentEle.style.display = "inline-block";
+        }
+    });
+
 }

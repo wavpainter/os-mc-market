@@ -80,19 +80,30 @@ function find_location(x,y,z,locations) {
 	return location_arr;
 }
 
+function mapValues(data) {
+	const values = data
+		.map((row) => {
+		return (
+			"(" +
+			Object.values(row)
+			.map((val) => {
+				if (val === null || val === "") {
+				return "NULL";
+				}
+				return `'${String(val).replace(/'/g, "").replace(/"/g, "'")}'`;
+			})
+			.join(",") +
+			")"
+		);
+		})
+		.join(",");
+	return values;
+}
+
 async function handleCron(event,env,ctx) {
 	let qres;
 
 	try{
-
-
-		// Get max ID from shops (to know which shops are new)
-		qres = await env.DB.prepare(
-			"SELECT MAX(id) FROM shop" 
-		)
-		.all();
-		let maxId = qres.results['MAX(id)'] == undefined ? 1 : qres.results['MAX(id)'];
-
 		// Get mall data
 		let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
 			method: "GET",
@@ -102,72 +113,44 @@ async function handleCron(event,env,ctx) {
 		});
 		const mallData = await response.json();
 
-		// Get latest cron
-		qres = await env.DB.prepare(
-			"SELECT * FROM cron ORDER BY datetime(timestamp) DESC"
-		)
-		.all();
-		let latestCron = qres.results.length > 0 ? qres.results[0].timestamp : null;
-		if(latestCron != null && new Date(latestCron).getTime() >= new Date(mallData['lastModified']).getTime()) {
-			// Stale data
-			return;
-		}
-
 		// New data
-		let newCron = mallData['lastModified'];
+		let newTimestamp = mallData['lastModified'];
 
 		// Push market data to bucket
 		let marketData = await mallToMarketData(env.BUCKET,mallData);
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
 
 		// Create shops that don't exist already
-		let mappedOrders = marketData['orders'].map(order => {
+		let mappedShops = marketData['orders'].map(order => {
 			return [order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID']];
 		})
-		qres = await env.DB.prepare(
-			"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES (?,?,?,?,?,?), (?,?,?,?,?,?)"
-		)
-		.bind(...mappedOrders)
-		.all();
-
-		// Create cron
-		qres = await env.DB.prepare(
-			"INSERT INTO cron (timestamp,previous_cron_timestamp) VALUES (?,?)"
-		)
-		.bind(newCron,latestCron)
-		.all();
-
-		// Add stock details for current shops
-		for(let i = 0; i < marketData['orders'].length; i++) {
-			let order = marketData['orders'][i];
-
+		if(mappedShops.length > 0) {
 			qres = await env.DB.prepare(
-				"SELECT id FROM shop WHERE (player,x,y,z,order_type,item_id) = (?,?,?,?,?,?)"
+				"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES " + mapValues(mappedShops)
 			)
-			.bind(order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID'])
-			.all();
-
-			if(qres.results.length == 0) continue;
-			let shopId = qres.results[0].id;
-
-			qres = await env.DB.prepare(
-				"INSERT INTO shop_stock (shop_id,cron_timestamp,quantity,price,stock) VALUES (?,?,?,?,?)"
-			)
-			.bind(shopId,newCron,order['quantity'],order['price'],order['stock'])
 			.all();
 		}
 
-		console.log("Generating updated deltas");
-
-		// Get shops
+		// Get all shops
 		qres = await env.DB.prepare(
-			"SELECT * FROM shop"
+			`SELECT s.*, ss.timestamp,ss.prev_timestamp,ss.quantity,ss.price,ss.stock
+			FROM shop s
+			LEFT JOIN
+				(SELECT A.* 
+				FROM shop_stock A 
+				INNER JOIN 
+					(SELECT shop_id, MAX(timestamp) AS timestamp 
+					FROM shop_stock 
+					GROUP BY shop_id) B 
+				ON A.shop_id = B.shop_id AND A.timestamp = B.timestamp) ss
+			ON s.id = ss.shop_id`
 		)
 		.all();
-		let shopLookup = {};
-		if(qres.results.length == 0) return [];
-		qres.results.forEach(shop => {
-			shopLookup[shop.id] = {
+		let allShops = qres.results;
+
+		let shopIdLookup = {};
+		allShops.forEach(shop => {
+			shopIdLookup[shop.id] = {
 				playerName: shop.player,
 				x: shop.x,
 				y: shop.x,
@@ -177,11 +160,58 @@ async function handleCron(event,env,ctx) {
 			}
 		});
 
-		// Generate updated deltas
-		let timestamp24h = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
-		let deltas24h = await deltas.getCronDeltasFrom(env.DB,timestamp24h.toISOString(),shopLookup,oldShopId);
+		let uniqueShopLookup = {};
+		allShops.forEach(shop => {
+			let key = `${shop.player}:${shop.x}:${shop.y}:${shop.z}:${shop.order_type}:${shop.item_id}`;
+			uniqueShopLookup[key] = shop;
+		})
 
-		await env.BUCKET.put("recent_updates.json",JSON.stringify(deltas24h));
+		// Add orders for shops
+		let mappedOrders = []
+		for(let i = 0; i < marketData['orders'].length; i++) {
+			let order = marketData['orders'][i];
+			let key = `${order.player_name}:${order.x}:${order.y}:${order.z}:${order.order_type}:${order.itemID}`;
+
+			let dbShop = uniqueShopLookup[key];
+			if(dbShop == undefined) continue;
+
+			let dbShopTimestamp = dbShop.timestamp;
+
+			if(new Date(dbShopTimestamp).getTime() == new Date(newTimestamp).getTime()) continue; // Stock has already been recorded
+
+			mappedOrders.push([dbShop.id,newTimestamp,dbShopTimestamp,order.quantity,order.price,order.stock]);
+		}
+
+		if(mappedOrders.length > 0) {
+			qres = await env.DB.prepare(
+				"INSERT INTO shop_stock (shop_id,timestamp,prev_timestamp,quantity,price,stock) VALUES " + mapValues(mappedOrders)
+			)
+			.all();
+		}
+
+		qres = await env.DB.prepare(
+			"SELECT MIN(timestamp) AS min_timestamp FROM shop_stock"
+		)
+		.all();
+		
+		let minTimestamp = qres.results[0].min_timestamp;
+		if(minTimestamp == null) return;
+
+		let timestamp7d = new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString();
+
+		qres = await env.DB.prepare(
+			`SELECT A.shop_id, A.timestamp, A.quantity, A.price, A.stock,B.shop_id AS prev_shop_id, B.quantity AS prev_quantity, B.price AS prev_price, B.stock AS prev_stock
+		FROM shop_stock A 
+		LEFT JOIN shop_stock B
+		ON (A.shop_id,A.prev_timestamp) = (B.shop_id,B.timestamp)
+		WHERE datetime(A.timestamp) > datetime(?) AND datetime(A.timestamp) <> datetime(?)`
+		)
+		.bind(timestamp7d,minTimestamp)
+		.all();
+
+		let logs = await deltas.getCronDeltas(qres.results,shopIdLookup);
+
+		await env.BUCKET.put("recent.json",JSON.stringify(logs));
 
 		console.log("Finished handling cron");
 	} catch (e) {
