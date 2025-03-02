@@ -502,8 +502,8 @@ button {
 
 
 .include-title {
+    display: inline-block;
     line-height:65px;
-    float:left;
     color:#ddd;
     font-size:18pt;
     margin-right:10px;
@@ -511,6 +511,7 @@ button {
 }
 
 .recent-tag {
+    display:inline-block;
     padding: 0 10px;
     height:34px;
     font-size: 14px;
@@ -525,61 +526,76 @@ button {
 }
 
 .recent-tag-inline {
-    margin-left:10px;
-    margin-right:10px;
+    flex-shrink:0;
+    justify-content: flex-end;
     margin-top:8px;
-    float:right;
+    margin-right:8px;
 }
 
 .recent-time {
     color: #333;
-    float:right;
+    position:relative;
+    flex-shrink:0;
+    justify-content: flex-end;
+    height:34px;
+    line-height:34px;
+    margin-top:8px;
+    margin-left:15px;
+    margin-right:15px;
+    font-size:14px;
+    font-weight: bold;
 }
 
 .include-option {
+    display:inline-block;
+    vertical-align: top;
+    margin-top:14px;
     margin-left: 12px;
-    margin-top:15px;
     text-decoration: none;
-    float:left;
 }
 
 .rlog {
-    float:left;
+    position:relative;
+    display: flex;
+    flex-direction: row;
     margin-left: 10px;
     margin-top:10px;
-    height:50px;
+    min-height:50px;
     width: 780px;
-    line-height:50px;
     text-decoration: none;
 }
 
 .log-text {
     color: #333;
+    padding: 12px 0;
+    line-height: 25px;
+    flex-grow:4;
+    font-size:11pt;
+    
 }
 
 .recent-icon {
     width:32px;
     height:32px;
     margin-top: 9px;
-    margin-left: 5px;
-    margin-right: 8px;
-    float:left;
+    margin-left: 10px;
+    margin-right: 15px;
 }
 
 .new-shop {
-    background-color: rgb(72, 182, 255);
+    background-color: gold;
 }
 
 .out-of-stock {
-    background-color: rgb(255, 76, 76);
+    background-color: rgb(202, 7, 0);
 }
 
 .restocked {
-    background-color: rgb(164, 240, 78);
+    background-color: rgb(44, 219, 0);
 }
 
 .improved-prices {
-    background-color: rgb(255, 221, 72);
+    background-color: rgb(60, 112, 255);
 }
 
 .disabled {

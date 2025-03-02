@@ -1,5 +1,5 @@
 // Env
-let APIORIGIN = "http://127.0.0.1:8787"
+let APIORIGIN = "https://api.os-mc-market.net"
 
 // State machine
 
@@ -11,6 +11,14 @@ let dataError = false;
 
 window.onload = event => {
     
+    fetchJSON(APIORIGIN + "/market_data.json").then(data => {
+        timestamp = data['timestamp'];
+        ele('last-updated').textContent = "Last Updated: " + new Date(timestamp).toLocaleString();
+    }).catch(error => {
+        console.error(error);
+        dataError = true;
+    });
+
     fetchJSON(APIORIGIN + "/locations.json").then(data => {
         locations = data;
     }).catch(error => {

@@ -1,5 +1,5 @@
 // Env
-let APIORIGIN = "http://127.0.0.1:8787"
+let APIORIGIN = "https://api.os-mc-market.net"
 
 // State machine
 let handledParams = false;
