@@ -504,9 +504,23 @@ button {
 }
 
 .recent-log {
-    margin-top:18px;
     display: inline-block;
     width: 100%;
+}
+
+.recent-log-header {
+    display: block;
+    background-color:#eee;
+    width: 750px;
+    border-width:2px;
+    border-style:solid;
+    border-color:rgba(0, 0, 0, 0.2);
+    height:30px;
+    margin-top: 23px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom:-5px;
+    border-radius: 10px 10px 0 0;
 }
 
 .include-title {
@@ -524,7 +538,7 @@ button {
     height:34px;
     font-size: 14px;
     border-radius: 5px;
-    color: #fff;
+    color: #eee;
     font-weight:bold;
     text-shadow: 0 1px 2px rgba(0,0,0, 0.5);
     line-height:34px;
@@ -533,16 +547,25 @@ button {
     text-align:center;
 }
 
+.log-gradient {
+    background-color:#eee;
+}
+
+.log-gradient:hover {
+    background-color:#ddd;
+}
+
 .recent-tag-inline {
     flex-shrink:0;
     justify-content: flex-end;
     margin-top:8px;
+    margin-left:10px;
     margin-right:8px;
     opacity: 1;
 }
 
 .recent-time {
-    color: #333;
+    color: #222;
     position:relative;
     flex-shrink:0;
     justify-content: flex-end;
@@ -550,7 +573,7 @@ button {
     line-height:34px;
     margin-top:8px;
     margin-left:15px;
-    margin-right:15px;
+    margin-right:6px;
     font-size:14px;
     font-weight: bold;
 }
@@ -568,44 +591,63 @@ button {
     position:relative;
     display: flex;
     flex-direction: row;
-    margin-left: 10px;
-    margin-top:10px;
+    margin-left: auto;
+    margin-right:auto;
+    margin-top:0px;
     min-height:50px;
-    width: 780px;
+    width: 750px;
     text-decoration: none;
+    border-style: solid;
+    border-width:2px;
 }
 
 .log-text {
-    color: #333;
+    color: #222;
     padding: 12px 0;
     line-height: 25px;
     flex-grow:4;
     font-size:11pt;
-    margin-left:5px;
+    margin-left:12px;
 }
 
 .recent-icon {
-    width:32px;
-    height:32px;
-    margin-top: 9px;
-    margin-left: 10px;
-    margin-right: 15px;
+    width:38px;
+    height:38px;
+    margin-top: 6px;
+    margin-left: 12px;
+    margin-right: 3px;
 }
 
 .new-shop {
-    background-color: rgb(0, 102, 219);
+    background-color: rgba(0, 102, 219,0.9);
+}
+
+.new-shop-border {
+    border-color: rgba(0, 102, 219, 0.2);
 }
 
 .out-of-stock {
-    background-color: rgb(231, 8, 0);
+    background-color: rgb(231, 8, 0,0.9);
+}
+
+.out-of-stock-border {
+    border-color: rgba(231, 8, 0,0.2);
 }
 
 .restocked {
-    background-color: rgb(44, 219, 0);
+    background-color: rgb(44, 219, 0,0.9);
+}
+
+.restocked-border {
+    border-color: rgb(44, 219, 0,0.2);
 }
 
 .improved-prices {
-    background-color: gold;
+    background-color: rgba(255, 217, 0,0.9);
+}
+
+.improved-prices-border {
+    border-color: rgba(255, 217, 0, 0.2);
 }
 
 .include-option:hover {
@@ -629,7 +671,7 @@ button {
 
 #recent-offers-count {
     position:absolute;
-    top: -10px;
+    top: -12px;
     right:-10px;
     height: 25px;
     color:white;
@@ -644,6 +686,7 @@ button {
     font-size: 12px;
     text-decoration: none;
     padding: 0 9px;
+    letter-spacing: -0.6px;
     font-family: 'Courier New', Courier, monospace;
 }
 

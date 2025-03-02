@@ -100,17 +100,26 @@ function mapValues(data) {
 	return values;
 }
 
+function fetchWithTimeout(url,options,timeout=7000) {
+	return Promise.race([
+		fetch(url,options),
+		new Promise((_,reject) => 
+			setTimeout(() => reject(new Error('timeout')),timeout)
+		)
+	])
+}
+
 async function handleCron(event,env,ctx) {
 	let qres;
 
 	try{
 		// Get mall data
-		let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
+		let response = await fetchWithTimeout("https://micro.os-mc.net/market/mall_shops", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
 			}
-		});
+		},5000);
 		const mallData = await response.json();
 
 		// New data
@@ -214,8 +223,9 @@ async function handleCron(event,env,ctx) {
 		await env.BUCKET.put("recent.json",JSON.stringify(logs));
 
 		console.log("Finished handling cron");
-	} catch (e) {
-		console.error("Error handling cron: ",e)
+	} catch (err) {
+		console.error(err);
+		console.error("Error handling cron: ",err.stack);
 	}
 }
 

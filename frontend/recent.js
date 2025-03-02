@@ -19,6 +19,8 @@ function displayRecentLog() {
         displayRecent = true;
         filtersApplied = true;
 
+        ele('recent-log-header').style.display = 'block';
+
         let recentLog = ele('recent-log')
         
         recentLog.innerHTML = "";
@@ -35,7 +37,7 @@ function displayRecentLog() {
 
                 let logEle = document.createElement('a');
                 logEle.setAttribute('href','/?item=' + itemName.toLowerCase() + '&view=' + orderViewMap[shop.orderType]);
-                logEle.classList.add(...['btn','nav-box-gradient','rlog'])
+                logEle.classList.add(...['log-gradient','rlog'])
 
                 let iconEle = document.createElement('img');
                 iconEle.classList.add('recent-icon');
@@ -49,7 +51,7 @@ function displayRecentLog() {
                 let recentTimeEle = document.createElement('div');
                 recentTimeEle.classList.add('recent-time');
                 if(hoursSince == 0) {
-                    recentTimeEle.innerText = "Recent";
+                    recentTimeEle.innerText = "Just Now";
                 }else {
                     recentTimeEle.innerText = `${hoursSince}h ago`
                 }
@@ -60,28 +62,36 @@ function displayRecentLog() {
 
                 switch(log.type) {
                     case 'New':
+                        logEle.classList.add('new-shop-border')
                         recentTagEle.classList.add('new-shop');
                         recentTagEle.innerText = "New Shop";
                         break;
                     case 'Out of Stock':
+                        logEle.classList.add('out-of-stock-border')
                         recentTagEle.classList.add('out-of-stock');
                         recentTagEle.innerText = "Out of Stock";
                         break;
                     case 'New Price':
+                        logEle.classList.add('improved-prices-border')
                         recentTagEle.classList.add('improved-prices');
                         recentTagEle.innerText = "New Price";
                         break;
                     case 'Restocked':
+                        logEle.classList.add('restocked-border')
                         recentTagEle.classList.add('restocked');
                         recentTagEle.innerText = "Restocked";
                         break;
                 }
-
                 logEle.appendChild(iconEle);
-                logEle.appendChild(recentTagEle);
+
 
                 logEle.appendChild(logTextEle);
+
                 logEle.appendChild(recentTimeEle);
+
+                logEle.appendChild(recentTagEle);
+
+
 
                 recentLog.appendChild(logEle);
             }catch(error) {

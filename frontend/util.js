@@ -23,8 +23,25 @@ function getOrderKey(order) {
 }
 
 function adjustPrice(price,useOSMDollars,diamondMedian) {
-    if(useOSMDollars || price == 0 || diamondMedian == null) return "$" + price.toFixed(2);
-    else return (diamondMedian / price).toFixed(1);
+    if(useOSMDollars || price == 0 || diamondMedian == null) {
+        let suffix = "";
+        if(price > 1e12) {
+            suffix = "T"
+            price = price / 1e12;
+        }
+        else if(price > 1e9) {
+            suffix = "B"
+            price = price / 1e9;
+        } else if (price > 1e6) {
+            suffix = "M"
+            price = price / 1e6;
+        } else if (price > 1e3) {
+            suffix = "K"
+            price = price / 1e3
+        }
+
+        return "$" + price.toFixed(2) + suffix;
+    } else return (diamondMedian / price).toFixed(1);
 }
 
 let orderViewMap = {
@@ -61,7 +78,7 @@ function generateLogText(log,itemName,items) {
     }
 
     let playerText = `${log.shop.playerName}`
-    let orderText = `<span class="${orderClassMap[orderType]}">${orderViewMap[orderType]} ${commonItemName}</span>`
+    let orderText = `<span class="${orderClassMap[orderType]}">${orderViewMap[orderType]}</span> ${commonItemName}`
 
     let text = "";
 
