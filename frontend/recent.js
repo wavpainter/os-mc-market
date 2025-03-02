@@ -40,12 +40,11 @@ function displayRecentLog() {
                 let iconEle = document.createElement('img');
                 iconEle.classList.add('recent-icon');
                 iconEle.setAttribute('src','/items/' + itemId.replaceAll(':','_') + '.png');
-                logEle.appendChild(iconEle);
+
 
                 let logTextEle = document.createElement('div');
                 logTextEle.classList.add('log-text');
                 logTextEle.innerHTML = generateLogText(log,itemName,items);
-                logEle.appendChild(logTextEle);
 
                 let recentTimeEle = document.createElement('div');
                 recentTimeEle.classList.add('recent-time');
@@ -54,7 +53,6 @@ function displayRecentLog() {
                 }else {
                     recentTimeEle.innerText = `${hoursSince}h ago`
                 }
-                logEle.appendChild(recentTimeEle);
 
                 let recentTagEle = document.createElement('div');
                 recentTagEle.classList.add('recent-tag');
@@ -78,7 +76,12 @@ function displayRecentLog() {
                         recentTagEle.innerText = "Restocked";
                         break;
                 }
+
+                logEle.appendChild(iconEle);
                 logEle.appendChild(recentTagEle);
+
+                logEle.appendChild(logTextEle);
+                logEle.appendChild(recentTimeEle);
 
                 recentLog.appendChild(logEle);
             }catch(error) {

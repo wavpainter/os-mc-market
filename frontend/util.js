@@ -60,27 +60,37 @@ function generateLogText(log,itemName,items) {
         }
     }
 
+    let playerText = `${log.shop.playerName}`
+    let orderText = `<span class="${orderClassMap[orderType]}">${orderViewMap[orderType]} ${commonItemName}</span>`
+
+    let text = "";
+
     switch(log['type']) {
         case "Restocked":
-            return `${playerName}'s ${commonItemName} shop is back in stock.`;
-
+            text = `${playerText}'s shop ${orderText} was restocked.`;
+            break;
         case "Out of Stock":
-            return `${playerName}'s ${commonItemName} shop is out of stock.`;
-
+            text = `${playerText}'s shop ${orderText} is out of stock.`;
+            break;
         case "New Price":
             let prevUnitPrice = log.prevUnitPrice;
             let unitPrice = log.unitPrice;
 
-            if(unitPrice == 0) return `${log.shop.playerName}'s ${commonItemName} shop is now free!`;
-            else if(prevUnitPrice == 0) return `${log.shop.playerName}'s ${commonItemName} shop is no longer free.`
-
-            let percentChange = Math.round(100 *(unitPrice - prevUnitPrice) / prevUnitPrice);
-            let dir = percentChange < 0 ? 'less' : 'more';
-            let positivePercentChange = Math.abs(percentChange);
-
-            return `${playerName} is ${orderViewMap[orderType]} ${commonItemName} for ${itemPriceText} (${positivePercentChange} ${dir}).`;
-        
+            if(unitPrice == 0) text = `${playerText} is ${orderText} for ${itemPriceText}`;
+            else if(prevUnitPrice == 0) text = `${playerText} is ${orderText} for ${itemPriceText} (previously free)`;
+            else {
+                let percentChange = Math.round(100 *(unitPrice - prevUnitPrice) / prevUnitPrice);
+                let dir = percentChange < 0 ? 'less' : 'more';
+                let positivePercentChange = Math.abs(percentChange);
+    
+                text = `${playerText} is ${orderText} for ${itemPriceText} (${positivePercentChange}% ${dir}).`;
+    
+            }
+            break;
         case "New":
-            return `${log.shop.playerName} is <span class="${orderClassMap[orderType]}">${orderViewMap[orderType]}</span> ${commonItemName} for ${itemPriceText}.`;
+            text = `${playerText} is ${orderText} for ${itemPriceText}.`;
+            break;
     }
+
+    return text;
 }
