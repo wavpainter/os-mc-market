@@ -500,6 +500,10 @@ button {
     text-decoration-thickness: 1px;
 }
 
+.recent-log {
+    display: inline-block;
+    width: 100%;
+}
 
 .include-title {
     display: inline-block;
@@ -583,11 +587,11 @@ button {
 }
 
 .new-shop {
-    background-color: gold;
+    background-color: rgb(0, 139, 219);
 }
 
 .out-of-stock {
-    background-color: rgb(202, 7, 0);
+    background-color: rgb(231, 8, 0);
 }
 
 .restocked {
@@ -595,7 +599,7 @@ button {
 }
 
 .improved-prices {
-    background-color: rgb(60, 112, 255);
+    background-color: gold;
 }
 
 .disabled {

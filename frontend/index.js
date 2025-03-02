@@ -206,10 +206,7 @@ function displayItems() {
     }
 }
 
-let viewMap = {
-    "buying": "Buy",
-    "selling": "Sell"
-}
+
 
 function handleParams() {
     if (!(handledParams) && items != null && orders != null) {
@@ -225,9 +222,9 @@ function handleParams() {
         item = item.toUpperCase();
         view = view.toLowerCase();
 
-        if(items[item] == undefined || viewMap[view] == undefined) return;
+        if(items[item] == undefined || viewOrderMap[view] == undefined) return;
 
-        viewItemListings(item,viewMap[view]);
+        viewItemListings(item,viewOrderMap[view]);
     }
 }
 
@@ -320,8 +317,8 @@ window.onload = event => {
     fetchJSON(APIORIGIN + "/items.json").then(data => {
         items = data;
         items_idLookup = {};
-        Object.keys(items).forEach(item => {
-            items_idLookup[item['id']] = item;
+        Object.keys(items).forEach(itemName => {
+            items_idLookup[items[itemName]['id']] = itemName;
         })
 
         displayItems();

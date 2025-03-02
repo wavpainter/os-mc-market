@@ -81,10 +81,18 @@ function find_location(x,y,z,locations) {
 }
 
 async function handleCron(event,env,ctx) {
-	let timestamp24h = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
-	let deltas24h = await deltas.getCronDeltasFrom(env.DB,timestamp24h.toISOString());
+	let qres;
 
 	try{
+
+
+		// Get max ID from shops (to know which shops are new)
+		qres = await env.DB.prepare(
+			"SELECT MAX(id) FROM shop" 
+		)
+		.all();
+		let maxId = qres.results['MAX(id)'] == undefined ? 1 : qres.results['MAX(id)'];
+
 		// Get mall data
 		let response = await fetch("https://micro.os-mc.net/market/mall_shops", {
 			method: "GET",
@@ -94,14 +102,13 @@ async function handleCron(event,env,ctx) {
 		});
 		const mallData = await response.json();
 
-		let qres;
 		// Get latest cron
 		qres = await env.DB.prepare(
 			"SELECT * FROM cron ORDER BY datetime(timestamp) DESC"
 		)
 		.all();
 		let latestCron = qres.results.length > 0 ? qres.results[0].timestamp : null;
-		if(latestCron != null && new Date(latestCron).getTime() == new Date(mallData['lastModified']).getTime()) {
+		if(latestCron != null && new Date(latestCron).getTime() >= new Date(mallData['lastModified']).getTime()) {
 			// Stale data
 			return;
 		}
@@ -112,16 +119,16 @@ async function handleCron(event,env,ctx) {
 		// Push market data to bucket
 		let marketData = await mallToMarketData(env.BUCKET,mallData);
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
-		
+
 		// Create shops that don't exist already
-		for(let i = 0; i < marketData['orders'].length; i++) {
-			let order = marketData['orders'][i];
-			qres = await env.DB.prepare(
-				"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES (?,?,?,?,?,?)"
-			)
-			.bind(order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID'])
-			.all();
-		}
+		let mappedOrders = marketData['orders'].map(order => {
+			return [order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID']];
+		})
+		qres = await env.DB.prepare(
+			"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES (?,?,?,?,?,?), (?,?,?,?,?,?)"
+		)
+		.bind(...mappedOrders)
+		.all();
 
 		// Create cron
 		qres = await env.DB.prepare(
@@ -150,10 +157,30 @@ async function handleCron(event,env,ctx) {
 			.all();
 		}
 
+		console.log("Generating updated deltas");
+
+		// Get shops
+		qres = await env.DB.prepare(
+			"SELECT * FROM shop"
+		)
+		.all();
+		let shopLookup = {};
+		if(qres.results.length == 0) return [];
+		qres.results.forEach(shop => {
+			shopLookup[shop.id] = {
+				playerName: shop.player,
+				x: shop.x,
+				y: shop.x,
+				z: shop.z,
+				orderType: shop.order_type,
+				itemId: shop.item_id
+			}
+		});
+
 		// Generate updated deltas
 		let timestamp24h = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
-		let deltas24h = await deltas.getCronDeltasFrom(env.DB,timestamp24h.toISOString());
-	
+		let deltas24h = await deltas.getCronDeltasFrom(env.DB,timestamp24h.toISOString(),shopLookup,oldShopId);
+
 		await env.BUCKET.put("recent_updates.json",JSON.stringify(deltas24h));
 
 		console.log("Finished handling cron");
