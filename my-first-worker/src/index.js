@@ -206,7 +206,7 @@ async function handleCron(event,env,ctx) {
 		let minTimestamp = qres.results[0].min_timestamp;
 		if(minTimestamp == null) return;
 
-		let timestamp7d = new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString();
+		let timestamp7d = new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000)).toISOString();
 
 		qres = await env.DB.prepare(
 			`SELECT A.shop_id, A.timestamp, A.quantity, A.price, A.stock,B.shop_id AS prev_shop_id, B.quantity AS prev_quantity, B.price AS prev_price, B.stock AS prev_stock
