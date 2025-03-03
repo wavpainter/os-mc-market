@@ -511,13 +511,16 @@ button {
 .recent-log-header {
     display: block;
     background-color:#eee;
-    width: 754px;
+    width: 750px;
     height:35px;
     margin-top: 25px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom:-5px;
+    margin-bottom:0px;
     border-radius: 10px 10px 0 0;
+    border-width: 0 0 1px 0;
+    border-color: #aaa;
+    border-style:solid;
 
 }
 
@@ -593,10 +596,11 @@ button {
     margin-right:auto;
     margin-top:0px;
     min-height:50px;
-    width: 750px;
+    width: 742px;
     text-decoration: none;
     border-style: solid;
-    border-width:2px;
+    border-width: 0 0 1px 8px;
+    border-color: #aaa;
 }
 
 .log-text {
@@ -621,7 +625,7 @@ button {
 }
 
 .new-shop-border {
-    border-color: rgba(0, 102, 219, 0.2);
+    border-left-color: rgba(0, 94, 202, 0.7);
 }
 
 .out-of-stock {
@@ -629,7 +633,7 @@ button {
 }
 
 .out-of-stock-border {
-    border-color: rgba(231, 8, 0,0.2);
+    border-left-color: rgba(206, 0, 0, 0.7);
 }
 
 .restocked {
@@ -637,7 +641,7 @@ button {
 }
 
 .restocked-border {
-    border-color: rgb(44, 219, 0,0.2);
+    border-left-color: rgba(40, 199, 0, 0.7);
 }
 
 .improved-prices {
@@ -645,7 +649,7 @@ button {
 }
 
 .improved-prices-border {
-    border-color: rgba(3, 161, 223, 0.2);
+    border-left-color: rgba(3, 161, 223, 0.7);
 
 }
 
