@@ -77,7 +77,6 @@ button {
 }
 
 .logo-circle-gradient {
-    background: linear-gradient(180deg, rgb(215, 218, 214) 0%,rgb(231, 231, 231) 50%, rgb(236, 247, 255) 100%);
     background: linear-gradient(180deg, rgb(207, 171, 10) 0%,rgb(240, 200, 21) 50%, rgb(237, 255, 76) 100%);
 }
 
@@ -200,7 +199,7 @@ button {
 
 .listing-options {
     position: relative;
-    padding-left: 40px;
+    padding-left: 28px;
     height: 65px;
     background-color: #111;
 }
@@ -228,7 +227,6 @@ button {
 
 .listing-grid-description {
     position:relative;
-    text-align: justify;
     color:#ddd;
     width: 65%;
     padding-top:20px;

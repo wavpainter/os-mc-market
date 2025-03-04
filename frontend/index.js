@@ -7,10 +7,13 @@ let displayingItems = false;
 let displayingViewedItem = false;
 let viewedItemName = null;
 let viewedListingType = null;
-let useOSMDollars = true;
-let usingOSMDollars = true;
+let usePlayerCount = false;
+let usingPlayerCount = false;
 let showUnlisted = false;
 let showingUnlisted = false;
+let isolate0Selling = false;
+let isolating = false;
+let useOSMDollars = true;
 
 // Data
 let timestamp = null;
@@ -18,6 +21,7 @@ let locations = null;
 let orders = null;
 let orders_itemCount = null;
 let orders_diamondMedian = null;
+let orders_itemOrderPlayer = null;
 let items = null;
 let items_idLookup = null;
 let dataError = false;
@@ -101,9 +105,8 @@ function appendOrderListing(itemDetails,order) {
 }
 
 function displayItemListings() {
-    if(!(displayingViewedItem && (useOSMDollars == usingOSMDollars)) 
+    if(!(displayingViewedItem) 
         && viewedItemName != null && viewedListingType != null && items != null && orders != null) {
-        usingOSMDollars = useOSMDollars;
         displayingViewedItem = true;
 
         let itemDetails = items[viewedItemName];
@@ -147,13 +150,17 @@ function displayItemListings() {
 }
 
 function displayItems() {
-    if (!(displayingItems && (showUnlisted == showingUnlisted)) && items != null && orders != null) {
+    if (!(displayingItems && (showUnlisted == showingUnlisted) && (isolate0Selling == isolating) && (usePlayerCount == usingPlayerCount)) && items != null && orders != null) {
         showingUnlisted = showUnlisted;
+        isolating = isolate0Selling;
+        usingPlayerCount = usePlayerCount;
         displayingItems = true;
 
         // Clear items
         let listingGridItems = ele('listing-grid-items');
         listingGridItems.innerHTML = "";
+
+        ele('metric').innerText = usePlayerCount ? 'players' : 'shops';
 
         // Display items
         view = "items";
@@ -166,11 +173,26 @@ function displayItems() {
                 else return;
             }
 
-            let sellCount = itemCount['Sell'];
-            if(sellCount == undefined) sellCount = 0;
-
-            let buyCount = itemCount['Buy'];
-            if(buyCount == undefined) buyCount = 0;
+            let sellCount, buyCount;
+            if(!usePlayerCount) {
+                sellCount = itemCount['Sell'];
+                if(sellCount == undefined) sellCount = 0;
+    
+                buyCount = itemCount['Buy'];
+                if(buyCount == undefined) buyCount = 0;
+            } else {
+                let x = orders_itemOrderPlayer[itemName];
+                if(x == undefined){
+                    sellCount = 0;
+                    buyCount = 0;
+                }
+                else {
+                    sellCount = x['Sell'].size;
+                    buyCount = x['Buy'].size;
+                }
+            }
+            
+            if(isolate0Selling && sellCount != 0) return;
 
             let itemBox = document.createElement('div');
             itemBox.classList.add('item-box');
@@ -228,13 +250,18 @@ function handleParams() {
     }
 }
 
-function updateUnits() {
-    useOSMDollars = !ele('units-option').checked;
-    displayItemListings();
+function updateNumber() {
+    usePlayerCount = !ele('number-option').checked;
+    displayItems();
 }
 
 function updateUnlisted() {
     showUnlisted = ele('unlisted-option').checked;
+    displayItems();
+}
+
+function updateIsolate() {
+    isolate0Selling = ele('isolate-option').checked;
     displayItems();
 }
 
@@ -243,9 +270,9 @@ window.onload = event => {
         viewItems();
     }
 
-    updateUnits();
-    ele('units-option').onchange = event => {
-        updateUnits();
+    updateNumber();
+    ele('number-option').onchange = event => {
+        updateNumber();
     }
 
     updateUnlisted();
@@ -253,15 +280,34 @@ window.onload = event => {
         updateUnlisted();
     }
 
+    updateIsolate();
+    ele('isolate-option').onchange = event => {
+        updateIsolate();
+    }
+
     fetchJSON(APIORIGIN + "/market_data.json").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
 
+        orders_itemOrderPlayer = {};
         orders_itemCount = {};
 
         let diamond_sell_orders = [];
         let diamond_sell_volume = 0;
         orders.forEach(order => {
+            let y1 = orders_itemOrderPlayer[order['item']];
+
+            if(y1 == undefined) {
+                y1 = {
+                    'Buy': new Set(),
+                    'Sell': new Set()
+                }
+            }
+
+            y1[order['order_type']].add(order['player_name']);
+
+            orders_itemOrderPlayer[order['item']] = y1;
+
             let x = orders_itemCount[order['item']];
             if(x == undefined) {
                 x = {

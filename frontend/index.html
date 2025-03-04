@@ -2,10 +2,10 @@
 <html>
     <head>
         <meta name="color-scheme" content="light only">
-        <link rel="stylesheet" href="/style.css?cache=20" />
-        <link rel="stylesheet" href="/slider.css?cache=20" />
-        <script src="/util.js?cache=20"></script>
-        <script src="/index.js?cache=20"></script>
+        <link rel="stylesheet" href="/style.css?cache=21" />
+        <link rel="stylesheet" href="/slider.css?cache=21" />
+        <script src="/util.js?cache=21"></script>
+        <script src="/index.js?cache=21"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Nuosu+SIL&display=swap" rel="stylesheet">
@@ -73,31 +73,31 @@
                         Show Unlisted Items
                     </label>
                 </div>
-                <div title="Display price in 'Units per Diamond', using the Median Diamond Sell Price." class="listing-option line">
+                <div title="Coming soon." class="listing-option line">
                     
                     <label class="switch">
-                        <input id="units-option" type="checkbox" />
+                        <input id="isolate-option" type="checkbox" />
                         <span class="slider round"></span>
                     </label>
-                    <label for="units-option">
-                        Diamond Units
+                    <label for="isolate-option">
+                        Isolate None Selling
                     </label>
                 </div>
-                <div title="Coming soon." class="listing-option" style="opacity:60%">
+                <div class="listing-option">
                     
                     <label class="switch">
-                        <input disabled="true" id="historical-option" type="checkbox" />
+                        <input id="number-option" type="checkbox" />
                         <span class="slider round"></span>
                     </label>
-                    <label for="historical-option">
-                        Historical Listings
+                    <label for="number-option">
+                        Show Shop Count
                     </label>
                 </div>
+                
             </div>
             <div id="listing-grid" class="content listing-grid" style="display:inline-block;">
                 <div class="listing-grid-description centered">
-                    The top number is the quantity of offers to <span class="sell-count">Sell</span>.
-                    The bottom number is the quantity of offers to <span class="buy-count">Buy</span>.
+                    The numbers beside each item indicate how many <span id="metric">players</span> are currently <span class="sell-count">selling</span> and <span class="buy-count">buying</span> the item.
                     Click an item for more details. 
                 </div>
                 <div id="listing-grid-items" class="listing-grid-items">
