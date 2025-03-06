@@ -272,7 +272,7 @@ async function handleCron(event,env,ctx) {
 		ON (A.shop_id,A.prev_timestamp) = (B.shop_id,B.timestamp)
 		WHERE (A.price,A.quantity,A.stock) <> (B.price,B.quantity,B.stock) AND datetime(A.timestamp) > datetime(?) AND datetime(A.timestamp) <> datetime(?)`
 		)
-		.bind(timestamp7d,minTimestamp)
+		.bind(timestamp2d,minTimestamp)
 		.all();
 
 		let logs = await deltas.getCronDeltas(qres.results,shopIdLookup);
