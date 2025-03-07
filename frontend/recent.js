@@ -5,6 +5,8 @@ let APIORIGIN = "https://api.os-mc-market.net"
 let displayingRecent = false;
 let filtersApplied = false;
 let filtersShowing = new Set(['New', 'Out of Stock','New Price','Restocked']);
+let hideStock = false;
+let hidingStock = false;
 
 // Data
 let timestamp = null;
@@ -12,12 +14,16 @@ let items = null;
 let items_idLookup = null;
 let recent = null;
 let dataError = false;
-
+let viewedLogs = null;
+let viewedLogs_initial = null;
 
 function displayRecentLog() {
-    if(!(displayingRecent || filtersApplied) && recent != null && items != null) {
+    if(!(displayingRecent && (hideStock == hidingStock)) && recent != null && items != null && viewedLogs != null) {
         displayRecent = true;
         filtersApplied = true;
+        hidingStock = hideStock;
+
+        let hasViewed = Object.keys(viewedLogs).length > 0;
 
         ele('recent-log-header').style.display = 'block';
 
@@ -30,14 +36,18 @@ function displayRecentLog() {
                 let shop = log.shop;
                 let itemId = shop.itemId;
                 let itemName = items_idLookup[itemId];
+                let key = getLogKey(log);
 
                 let hoursSince = Math.floor((new Date().getTime() - new Date(log.at).getTime()) / (1000 * 60 * 60));
 
                 if(itemName == null || !filtersShowing.has(log.type)) return;
 
+                if(hideStock && (log.type == 'Restocked' || log.type == 'Out of Stock')) return;
+
                 let logEle = document.createElement('a');
                 logEle.setAttribute('href','/?item=' + itemName.toLowerCase() + '&view=' + orderViewMap[shop.orderType]);
                 logEle.classList.add(...['log-gradient','rlog'])
+                if(hasViewed && !viewedLogs_initial[key]) logEle.classList.add(['log-new']);
 
                 let iconEle = document.createElement('img');
                 iconEle.classList.add('recent-icon');
@@ -91,13 +101,68 @@ function displayRecentLog() {
 
                 logEle.appendChild(recentTagEle);
 
-
-
                 recentLog.appendChild(logEle);
+
+                viewedLogs[key] = true;
             }catch(error) {
                 console.log("Error processing log",error);
             }
         })
+
+        updateViewedLogs();
+        displayRecentCount();
+    }
+}
+
+function displayRecentCount() {
+    if(recent != null && viewedLogs != null) {
+
+        let nRecent = 0;
+        recent.forEach(log => {
+            let key = getLogKey(log);
+            if(!viewedLogs[key]) nRecent++;
+        })
+
+        let recentEle = ele("recent-offers-count");
+
+        if(nRecent == 0) {
+            recentEle.style.display = "none";
+        } else {
+            recentEle.innerText = nRecent;
+            recentEle.style.display = "inline-block";
+        }
+    }
+}
+
+function loadViewedLogs() {
+    try{
+        let viewedLogsString = localStorage.getItem("viewedlogs");
+        if(viewedLogsString != null) {
+            viewedLogs = JSON.parse(viewedLogsString);
+
+        } else {
+            viewedLogs = {};
+        }
+    }catch(e) {
+        localStorage.removeItem("viewedlogs");
+        viewedLogs = {};
+    }
+
+    viewedLogs_initial = {};
+    Object.keys(viewedLogs).forEach(key => {
+        viewedLogs_initial[key] = viewedLogs[key];
+    });
+
+    displayRecentCount();
+    displayRecentLog();
+}
+
+function updateViewedLogs() {
+    try{
+        let viewedLogsString = JSON.stringify(viewedLogs);
+        localStorage.setItem("viewedlogs",viewedLogsString);
+    }catch(e) {
+        localStorage.removeItem("viewedlogs");
     }
 }
 
@@ -136,14 +201,27 @@ function toggleFilter(target) {
     displayRecentLog();
 }
 
+function updateHideStock() {
+    hideStock = ele('hide-stock-option').checked;
+    displayRecentLog();
+}
+
 window.onload = event => {
-    let eles = document.getElementsByClassName('include-option');
+    loadViewedLogs();
+
+    updateHideStock();
+    ele('hide-stock-option').onchange = event => {
+        updateHideStock();
+    }
+
+
+    /*let eles = document.getElementsByClassName('include-option');
     for(let i=0; i < eles.length; i++) {
         let ele = eles[i];
         ele.onclick = event => {
             toggleFilter(event.target);
         }
-    }
+    }*/
 
     fetchJSON(APIORIGIN + "/market_data.json").then(data => {
         timestamp = data['timestamp'];
@@ -172,15 +250,9 @@ window.onload = event => {
         dataError = true;
     });
 
-    fetchJSON(APIORIGIN + "/recent.json").then(data => {
-        let nRecent = data.length;
-        if(nRecent != undefined) {
-            let recentEle = ele("recent-offers-count");
-            recentEle.innerText = nRecent;
-            recentEle.style.display = "inline-block";
-        }
-       
+    fetchJSON(APIORIGIN + "/recent.json").then(data => {       
         recent = data.sort((a,b) => (new Date(b.at).getTime() - new Date(a.at).getTime()));
+        displayRecentCount();
         displayRecentLog();
     }).catch(error => {
         console.error(error);

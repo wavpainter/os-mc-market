@@ -22,6 +22,10 @@ function getOrderKey(order) {
     return order['player_name'] + ':' + order['item'] + ':' + order['order_type'] + ':' + order['x'] + ':' + order['y'] + ':' + order['z'];
 }
 
+function getLogKey(log) {
+    return `${log.at}:${log.type}:${log.shop.playerName}:${log.shop.x}:${log.shop.y}:${log.shop.z}:${log.shop.orderType}:${log.shop.itemId}`;
+}
+
 function adjustPrice(price,useOSMDollars,diamondMedian) {
     if(useOSMDollars || price == 0 || diamondMedian == null) {
         let suffix = "";

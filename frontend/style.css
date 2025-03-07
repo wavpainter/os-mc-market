@@ -197,11 +197,19 @@ button {
     margin-right:5px;
 }
 
-.listing-options {
+.options {
     position: relative;
-    padding-left: 28px;
     height: 65px;
     background-color: #111;
+}
+
+.recent-options {
+    padding-left:271px;
+}
+
+.listing-options {
+    padding-left: 28px;
+
 }
 
 .listing-option {
@@ -548,6 +556,10 @@ button {
 
 .log-gradient {
     background-color:#eee;
+}
+
+.log-new {
+    background-color:rgb(231, 241, 228)
 }
 
 .log-gradient:hover {
