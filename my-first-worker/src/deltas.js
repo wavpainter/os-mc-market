@@ -21,7 +21,7 @@ async function getCronDeltas(deltas,shopLookup) {
         } else {
             if(shop["orderType"] == "Sell") {
 
-                if(delta.prev_stock == 0 && delta.stock > 0) {
+                if(delta.stock > delta.prev_stock) {
                     logs.push({
                         shop,
                         at: delta.timestamp,
