@@ -25,6 +25,8 @@ let orders_itemOrderPlayer = null;
 let items = null;
 let items_idLookup = null;
 let dataError = false;
+let recent = null;
+let viewedLogs = null;
 
 function viewItems() {
     let divAvailableItems = ele("listing-grid");
@@ -149,6 +151,26 @@ function displayItemListings() {
     }
 }
 
+function displayRecentCount() {
+    if(recent != null && viewedLogs != null) {
+
+        let nRecent = 0;
+        recent.forEach(log => {
+            let key = getLogKey(log);
+            if(!viewedLogs[key]) nRecent++;
+        })
+
+        let recentEle = ele("recent-offers-count");
+
+        if(nRecent == 0) {
+            recentEle.style.display = "none";
+        } else {
+            recentEle.innerText = nRecent;
+            recentEle.style.display = "inline-block";
+        }
+    }
+}
+
 function displayItems() {
     if (!(displayingItems && (showUnlisted == showingUnlisted) && (isolate0Selling == isolating) && (usePlayerCount == usingPlayerCount)) && items != null && orders != null) {
         showingUnlisted = showUnlisted;
@@ -228,7 +250,42 @@ function displayItems() {
     }
 }
 
+function displayRecentCount() {
+    if(recent != null && viewedLogs != null) {
 
+        let nRecent = 0;
+        recent.forEach(log => {
+            let key = getLogKey(log);
+            if(!viewedLogs[key]) nRecent++;
+        })
+
+        let recentEle = ele("recent-offers-count");
+
+        if(nRecent == 0) {
+            recentEle.style.display = "none";
+        } else {
+            recentEle.innerText = nRecent;
+            recentEle.style.display = "inline-block";
+        }
+    }
+}
+
+function loadViewedLogs() {
+    try{
+        let viewedLogsString = localStorage.getItem("viewedlogs");
+        if(viewedLogsString != null) {
+            viewedLogs = JSON.parse(viewedLogsString);
+
+        } else {
+            viewedLogs = {};
+        }
+    }catch(e) {
+        localStorage.removeItem("viewedlogs");
+        viewedLogs = {};
+    }
+
+    displayRecentCount();
+}
 
 function handleParams() {
     if (!(handledParams) && items != null && orders != null) {
@@ -284,6 +341,8 @@ window.onload = event => {
     ele('isolate-option').onchange = event => {
         updateIsolate();
     }
+
+    loadViewedLogs();
 
     fetchJSON(APIORIGIN + "/market_data.json").then(data => {
         orders = data['orders'];
@@ -373,12 +432,9 @@ window.onload = event => {
         dataError = true;
     });
     fetchJSON(APIORIGIN + "/recent.json").then(data => {
-        let nRecent = data.length;
-        if(nRecent != undefined) {
-            let recentEle = ele("recent-offers-count");
-            recentEle.innerText = nRecent;
-            recentEle.style.display = "inline-block";
-        }
+        recent = data.sort((a,b) => (new Date(b.at).getTime() - new Date(a.at).getTime()));
+
+        displayRecentCount();
     });
 
 }
