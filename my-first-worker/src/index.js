@@ -127,6 +127,63 @@ async function handleCron(event,env,ctx) {
 
 		// Push market data to bucket
 		let marketData = await mallToMarketData(env.BUCKET,mallData);
+
+		// Remove duplicate shops from market data
+		let neighbors = {}
+		for(let i = 0; i < marketData['orders'].length; i++) {
+			let order = marketData['orders'][i];
+			
+			[-1,1].forEach(d => {
+				neighbors[`${order.x+d}:${order.y}:${order.z}`] = order;
+				neighbors[`${order.x}:${order.y}:${order.z+d}`] = order;
+			})			
+		}
+		let ordersCleaned = [];
+		let ordersRemoved = [];
+		for(let i = 0; i < marketData['orders'].length; i++) {
+			let order = marketData['orders'][i];
+			let neighbor = neighbors[`${order.x}:${order.y}:${order.z}`];
+
+			if(neighbor == undefined) {
+				ordersCleaned.push(order);
+				continue;
+			}
+
+			if(order.x <= neighbor.x && order.z <= neighbor.z) {
+				let orderCheaper = true;
+
+				if(order.quantity == 0) {
+					orderCheaper = true;
+				} else if (neighbor.quantity == 0) {
+					orderCheaper = false;
+				} else {
+					let orderUnitPrice = order.price / order.quantity;
+					let neighborUnitPrice = neighbor.price / neighbor.quantity;
+
+					if(orderUnitPrice <= neighborUnitPrice) {
+						orderCheaper = true;
+					} else {
+						orderCheaper = false;
+					}
+				}
+
+				if((order.order_type == 'Sell' && orderCheaper) || (order.order_type == 'Buy' && !orderCheaper)) {
+					ordersCleaned.push(order);
+				} else {
+					order.price = neighbor.price;
+					order.quantity = neighbor.quantity;
+					
+					ordersCleaned.push(order);
+				}
+			} else {
+				ordersRemoved.push(order);
+			}
+		}
+		console.log(`Removed ${ordersRemoved.length} orders`);
+		console.log(JSON.stringify(ordersRemoved));
+
+		marketData['orders'] = ordersCleaned;
+
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
 
 		// Create shops that don't exist already
@@ -177,8 +234,8 @@ async function handleCron(event,env,ctx) {
 
 		// Add orders for shops
 		let mappedOrders = []
-		for(let i = 0; i < marketData['orders'].length; i++) {
-			let order = marketData['orders'][i];
+		for(let i = 0; i < ordersCleaned.length; i++) {
+			let order = ordersCleaned[i];
 			let key = `${order.player_name}:${order.x}:${order.y}:${order.z}:${order.order_type}:${order.itemID}`;
 
 			let dbShop = uniqueShopLookup[key];
@@ -206,19 +263,20 @@ async function handleCron(event,env,ctx) {
 		let minTimestamp = qres.results[0].min_timestamp;
 		if(minTimestamp == null) return;
 
-		let timestamp2d = new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000)).toISOString();
+		let timestamp7d = new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString();
 
 		qres = await env.DB.prepare(
 			`SELECT A.shop_id, A.timestamp, A.quantity, A.price, A.stock,B.shop_id AS prev_shop_id, B.quantity AS prev_quantity, B.price AS prev_price, B.stock AS prev_stock
 		FROM shop_stock A 
 		LEFT JOIN shop_stock B
 		ON (A.shop_id,A.prev_timestamp) = (B.shop_id,B.timestamp)
-		WHERE datetime(A.timestamp) > datetime(?) AND datetime(A.timestamp) <> datetime(?)`
+		WHERE (A.price,A.quantity,A.stock) <> (B.price,B.quantity,B.stock) AND datetime(A.timestamp) > datetime(?) AND datetime(A.timestamp) <> datetime(?)`
 		)
 		.bind(timestamp2d,minTimestamp)
 		.all();
 
 		let logs = await deltas.getCronDeltas(qres.results,shopIdLookup);
+		logs = logs.sort((a,b) => (new Date(b.at).getTime() - new Date(a.at).getTime()));
 
 		await env.BUCKET.put("recent.json",JSON.stringify(logs));
 
