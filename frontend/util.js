@@ -74,7 +74,7 @@ function generateLogText(log,itemName,items) {
         let stackSize = item.stack;
         let stackPrice = log.unitPrice * stackSize;
 
-        if(log.unitPrice < 1) {
+        if(log.unitPrice < 1 && stackSize != 1) {
             itemPriceText = adjustPrice(stackPrice,true,null) + ' per stack'
         } else {
             itemPriceText = adjustPrice(log.unitPrice,true,null) + ' each';
