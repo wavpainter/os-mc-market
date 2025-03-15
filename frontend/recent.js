@@ -4,7 +4,7 @@ let APIORIGIN = "https://api.os-mc-market.net"
 // State machine
 let displayingRecent = false;
 let filtersApplied = false;
-let filtersShowing = new Set(['New', 'Out of Stock','New Price','Restocked']);
+let filtersShowing = new Set(['New', 'Out of Stock','New Price','Restocked','Removed']);
 let hideStock = false;
 let hidingStock = false;
 
@@ -91,9 +91,13 @@ function displayRecentLog() {
                         recentTagEle.classList.add('restocked');
                         recentTagEle.innerText = "Restocked";
                         break;
+                    case 'Removed':
+                        logEle.classList.add('removed-border')
+                        recentTagEle.classList.add('removed');
+                        recentTagEle.innerText = "Removed";
+                        break;
                 }
                 logEle.appendChild(iconEle);
-
 
                 logEle.appendChild(logTextEle);
 

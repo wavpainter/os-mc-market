@@ -111,6 +111,10 @@ function generateLogText(log,itemName,items) {
         case "New":
             text = `${playerText} is ${orderText} for ${itemPriceText}.`;
             break;
+
+        case "Removed":
+            text = `${playerText} is no longer ${orderText} for ${itemPriceText}.`;
+            break;
     }
 
     return text;

@@ -180,7 +180,6 @@ async function handleCron(event,env,ctx) {
 			}
 		}
 		console.log(`Removed ${ordersRemoved.length} orders`);
-		console.log(JSON.stringify(ordersRemoved));
 
 		marketData['orders'] = ordersCleaned;
 
@@ -214,9 +213,10 @@ async function handleCron(event,env,ctx) {
 		.all();
 		let allShops = qres.results;
 
+		let missingShops = {};
 		let shopIdLookup = {};
 		allShops.forEach(shop => {
-			shopIdLookup[shop.id] = {
+			let shopData = {
 				playerName: shop.player,
 				x: shop.x,
 				y: shop.x,
@@ -224,6 +224,9 @@ async function handleCron(event,env,ctx) {
 				orderType: shop.order_type,
 				itemId: shop.item_id
 			}
+
+			shopIdLookup[shop.id] = shopData;
+			missingShops[shop.id] = shop;
 		});
 
 		let uniqueShopLookup = {};
@@ -241,12 +244,29 @@ async function handleCron(event,env,ctx) {
 			let dbShop = uniqueShopLookup[key];
 			if(dbShop == undefined) continue;
 
+			delete missingShops[dbShop.id];
+
+			if(order.quantity == dbShop.quantity && order.price == dbShop.price && order.stock == dbShop.stock) continue;
+
 			let dbShopTimestamp = dbShop.timestamp;
 
 			if(new Date(dbShopTimestamp).getTime() == new Date(newTimestamp).getTime()) continue; // Stock has already been recorded
 
 			mappedOrders.push([dbShop.id,newTimestamp,dbShopTimestamp,order.quantity,order.price,order.stock]);
 		}
+
+		Object.keys(missingShops).forEach(shopId => {
+			let dbShop = missingShops[shopId];
+
+			if(dbShop.stock == -1) return;
+
+			let dbShopTimestamp = dbShop.timestamp;
+
+			if(new Date(dbShopTimestamp).getTime() == new Date(newTimestamp).getTime()) return; // Stock has already been recorded
+
+			// Push missing shop
+			mappedOrders.push([dbShop.id,newTimestamp,dbShopTimestamp,dbShop.quantity,dbShop.price,-1]);
+		});
 
 		if(mappedOrders.length > 0) {
 			qres = await env.DB.prepare(
@@ -267,12 +287,12 @@ async function handleCron(event,env,ctx) {
 
 		qres = await env.DB.prepare(
 			`SELECT A.shop_id, A.timestamp, A.quantity, A.price, A.stock,B.shop_id AS prev_shop_id, B.quantity AS prev_quantity, B.price AS prev_price, B.stock AS prev_stock
-		FROM shop_stock A 
+		FROM (SELECT * FROM shop_stock WHERE datetime(timestamp) > datetime(?) AND datetime(timestamp) <> datetime(?)) A 
 		LEFT JOIN shop_stock B
 		ON (A.shop_id,A.prev_timestamp) = (B.shop_id,B.timestamp)
-		WHERE (A.price,A.quantity,A.stock) <> (B.price,B.quantity,B.stock) AND datetime(A.timestamp) > datetime(?) AND datetime(A.timestamp) <> datetime(?)`
+		WHERE A.prev_timestamp IS NULL OR (A.price,A.quantity,A.stock) <> (B.price,B.quantity,B.stock)`
 		)
-		.bind(timestamp2d,minTimestamp)
+		.bind(timestamp7d,minTimestamp)
 		.all();
 
 		let logs = await deltas.getCronDeltas(qres.results,shopIdLookup);
@@ -334,6 +354,8 @@ async function mallToMarketData(bucket,mallData) {
 
 		signIndex.add(signKey);
 
+		let flooredStock = Math.floor(mallShop['availableStock'] / mallShop['unit']) * mallShop['unit'];
+
 		order_types_isbuy.forEach(order_type_isbuy => {
 			let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
 			orders.push({
@@ -348,7 +370,7 @@ async function mallToMarketData(bucket,mallData) {
 				"item": item_name != undefined ? item_name : "undef",
 				"itemID": itemId,
 				"location": location,
-				"stock": mallShop['availableStock']
+				"stock": flooredStock
 			})
 		})
 	}

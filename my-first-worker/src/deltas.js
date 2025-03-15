@@ -9,7 +9,7 @@ async function getCronDeltas(deltas,shopLookup) {
 
         if(delta.quantity == 0 || shop == undefined) continue;
 
-        if(delta.prev_shop_id == null) {
+        if(delta.prev_shop_id == null || (delta.prev_stock == -1 && delta.stock != -1)) {
             let unitPrice = delta.price / delta.quantity;
 
             logs.push({
@@ -18,10 +18,19 @@ async function getCronDeltas(deltas,shopLookup) {
                 type: "New",
                 unitPrice
             })
+        } else if(delta.stock == -1){
+            let unitPrice = delta.price / delta.quantity;
+
+            logs.push({
+                shop,
+                at:delta.timestamp,
+                type: "Removed",
+                unitPrice,
+            })
         } else {
             if(shop["orderType"] == "Sell") {
 
-                if(delta.stock > delta.prev_stock) {
+                if(delta.prev_stock == 0 && delta.stock > 0) {
                     logs.push({
                         shop,
                         at: delta.timestamp,

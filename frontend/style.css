@@ -663,6 +663,15 @@ button {
 
 }
 
+.removed {
+    background-color: rgba(223, 120, 3, 0.9);
+}
+
+.removed-border {
+    border-left-color: rgba(223, 102, 3, 0.7);
+
+}
+
 .include-option:hover {
     color: #c5c5c5;
     background-color: #aaa;
