@@ -7,6 +7,8 @@ let filtersApplied = false;
 let filtersShowing = new Set(['New', 'Out of Stock','New Price','Restocked','Removed']);
 let hideStock = false;
 let hidingStock = false;
+let showRemoved = false;
+let showingRemoved = false;
 
 // Data
 let timestamp = null;
@@ -18,10 +20,11 @@ let viewedLogs = null;
 let viewedLogs_initial = null;
 
 function displayRecentLog() {
-    if(!(displayingRecent && (hideStock == hidingStock)) && recent != null && items != null && viewedLogs != null) {
+    if(!(displayingRecent && (hideStock == hidingStock) && (showRemoved == showingRemoved)) && recent != null && items != null && viewedLogs != null) {
         displayRecent = true;
         filtersApplied = true;
         hidingStock = hideStock;
+        showingRemoved = showRemoved;
 
         let hasViewed = Object.keys(viewedLogs).length > 0;
 
@@ -40,8 +43,11 @@ function displayRecentLog() {
 
                 let hoursSince = Math.floor((new Date().getTime() - new Date(log.at).getTime()) / (1000 * 60 * 60));
 
-                if(itemName == null || !filtersShowing.has(log.type)) return;
+                if(itemName == null) return;
+                
+                viewedLogs[key] = true;
 
+                if(!showingRemoved && (log.type == 'Removed')) return;
                 if(hideStock && (log.type == 'Restocked' || log.type == 'Out of Stock')) return;
 
                 let logEle = document.createElement('a');
@@ -106,8 +112,6 @@ function displayRecentLog() {
                 logEle.appendChild(recentTagEle);
 
                 recentLog.appendChild(logEle);
-
-                viewedLogs[key] = true;
             }catch(error) {
                 console.log("Error processing log",error);
             }
@@ -210,12 +214,22 @@ function updateHideStock() {
     displayRecentLog();
 }
 
+function updateShowRemoved() {
+    showRemoved = ele('show-removed-option').checked;
+    displayRecentLog();
+}
+
 window.onload = event => {
     loadViewedLogs();
 
     updateHideStock();
     ele('hide-stock-option').onchange = event => {
         updateHideStock();
+    }
+
+    updateShowRemoved();
+    ele('show-removed-option').onchange = event => {
+        updateShowRemoved();
     }
 
 
