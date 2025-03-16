@@ -16,6 +16,7 @@ let items = null;
 let items_idLookup = null;
 let recent = null;
 let dataError = false;
+let viewedLogs_hasViewed = false;
 let viewedLogs = null;
 let viewedLogs_initial = null;
 
@@ -25,8 +26,6 @@ function displayRecentLog() {
         filtersApplied = true;
         hidingStock = hideStock;
         showingRemoved = showRemoved;
-
-        let hasViewed = Object.keys(viewedLogs).length > 0;
 
         ele('recent-log-header').style.display = 'block';
 
@@ -53,7 +52,7 @@ function displayRecentLog() {
                 let logEle = document.createElement('a');
                 logEle.setAttribute('href','/?item=' + itemName.toLowerCase() + '&view=' + orderViewMap[shop.orderType]);
                 logEle.classList.add(...['log-gradient','rlog'])
-                if(hasViewed && !viewedLogs_initial[key]) logEle.classList.add(['log-new']);
+                if(viewedLogs_hasViewed && !viewedLogs_initial[key]) logEle.classList.add(['log-new']);
 
                 let iconEle = document.createElement('img');
                 iconEle.classList.add('recent-icon');
@@ -155,6 +154,8 @@ function loadViewedLogs() {
         localStorage.removeItem("viewedlogs");
         viewedLogs = {};
     }
+
+    viewedLogs_hasViewed = Object.keys(viewedLogs).length > 0;
 
     viewedLogs_initial = {};
     Object.keys(viewedLogs).forEach(key => {
