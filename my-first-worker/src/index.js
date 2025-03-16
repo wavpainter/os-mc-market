@@ -347,7 +347,9 @@ async function mallToMarketData(bucket,mallData) {
 
 		let item_name = items_nameLookup[itemId];
 
-		let signKey = mallShop['owner'] + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
+		let owner = mallShop['owner'].substring(0,15)
+
+		let signKey = owner + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
 		if(signIndex.has(signKey)) {
 			continue;
 		}
@@ -362,7 +364,7 @@ async function mallToMarketData(bucket,mallData) {
 				"x": loc['x'],
 				"y": loc['y'],
 				"z": loc['z'],
-				"player_name": mallShop['owner'],
+				"player_name": owner,
 				"quantity": mallShop['unit'],
 				"order_type": order_type_isbuy ? 'Sell' : 'Buy',
 				"price": price,
