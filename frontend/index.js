@@ -82,6 +82,12 @@ function appendOrderListing(itemDetails,order) {
         if(order['stock'] == 0) {
             cStock.classList.add('stock-red');
         }
+    }else {
+        cStock.textContent = adjustPrice(order['bal'],true,null);
+
+        if(order['bal'] < order['price']) {
+            cStock.classList.add('stock-red');
+        }
     }
 
     
@@ -129,7 +135,7 @@ function displayItemListings() {
 
         if(viewedListingType == 'Buy') {
             ele('selling-tab').onclick = () => viewItemListings(viewedItemName,'Sell');
-            ele('stock-header').innerText = ''
+            ele('stock-header').innerText = 'Bal'
         } else {
             ele('buying-tab').onclick = () => viewItemListings(viewedItemName,'Buy');
             ele('stock-header').innerText = 'Stock'

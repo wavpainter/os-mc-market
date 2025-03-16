@@ -370,7 +370,8 @@ async function mallToMarketData(bucket,mallData) {
 				"item": item_name != undefined ? item_name : "undef",
 				"itemID": itemId,
 				"location": location,
-				"stock": flooredStock
+				"stock": flooredStock,
+				"bal": mallShop['ownerBalance']
 			})
 		})
 	}
