@@ -134,15 +134,15 @@ async function handleCron(event,env,ctx) {
 			let order = marketData['orders'][i];
 			
 			[-1,1].forEach(d => {
-				neighbors[`${order.x+d}:${order.y}:${order.z}`] = order;
-				neighbors[`${order.x}:${order.y}:${order.z+d}`] = order;
+				neighbors[`${order.x+d}:${order.y}:${order.z}:${order.order_type}`] = order;
+				neighbors[`${order.x}:${order.y}:${order.z+d}:${order.order_type}`] = order;
 			})			
 		}
 		let ordersCleaned = [];
 		let ordersRemoved = [];
 		for(let i = 0; i < marketData['orders'].length; i++) {
 			let order = marketData['orders'][i];
-			let neighbor = neighbors[`${order.x}:${order.y}:${order.z}`];
+			let neighbor = neighbors[`${order.x}:${order.y}:${order.z}:${order.order_type}`];
 
 			if(neighbor == undefined) {
 				ordersCleaned.push(order);
@@ -150,7 +150,7 @@ async function handleCron(event,env,ctx) {
 			}
 
 			if(order.x <= neighbor.x && order.z <= neighbor.z) {
-				let orderCheaper = true;
+				/*let orderCheaper = true;
 
 				if(order.quantity == 0) {
 					orderCheaper = true;
@@ -173,6 +173,21 @@ async function handleCron(event,env,ctx) {
 					order.price = neighbor.price;
 					order.quantity = neighbor.quantity;
 					
+					ordersCleaned.push(order);
+				}*/
+
+				let orderLowerQuantity = true;
+
+				if(neighbor.quantity < order.quantity) {
+					orderLowerQuantity = false;
+				}
+
+				if(orderLowerQuantity) {
+					ordersCleaned.push(order);
+				}else {
+					order.price = neighbor.price
+					order.quantity = neighbor.quantity;
+
 					ordersCleaned.push(order);
 				}
 			} else {
@@ -383,6 +398,39 @@ async function mallToMarketData(bucket,mallData) {
 	return marketData;
 }
 
+async function getHistoricalData(env,itemId) {
+	let marketData = await env.BUCKET.get("market_data.json");
+	marketData = await marketData.json();
+
+	let qres = await env.DB.prepare(
+		`SELECT A.shop_id, A.timestamp, A.prev_timestamp, A.quantity, A.price, A.stock, B.player FROM shop_stock A INNER JOIN shop B ON A.shop_id = B.id WHERE B.item_id = ? AND B.order_type = "Sell" ORDER BY A.timestamp ASC`
+	)
+	.bind(itemId)
+	.all();
+
+	let data = {};
+
+	qres.results.forEach(row => {
+		let id = row["player"] + ":" + row["shop_id"];
+
+		if(data[id] == undefined) {
+			data[id] = []
+		}
+
+		data[id].push({
+			"timestamp": row["timestamp"],
+			"quantity": row["quantity"],
+			"price": row["price"],
+			"stock": row["stock"]
+		})
+	})
+
+	return {
+		"timestamp": marketData["timestamp"],
+		"itemId": itemId,
+		"shops": data
+	};
+}
 
 export default {
 	async fetch(request, env, ctx) {
@@ -398,19 +446,35 @@ export default {
 			case "GET":
 				response = await cache.match(request);
 				if(!response) {
-					const object = await env.BUCKET.get(key);
-		
-					if (object === null) {
-					  return new Response("Object Not Found", { status: 404 });
+					switch(url.pathname) {
+						case "/historical":
+							let itemId = url.searchParams.get("itemId")
+
+							if(itemId == undefined || !(/^\d+(\:\d+)?$/).test(itemId)) {
+								return new Response("Invalid ItemID", { status: 404 });
+							}
+
+							let historicalData = await getHistoricalData(env,itemId);
+
+							response = new Response(JSON.stringify(historicalData,null,4))
+							break
+						default:
+							const object = await env.BUCKET.get(key);
+			
+							if (object === null) {
+								return new Response("Object Not Found", { status: 404 });
+							}
+
+							const headers = new Headers();
+							object.writeHttpMetadata(headers);
+							headers.set("etag", object.httpEtag);
+					
+							response = new Response(object.body, {
+							  headers,
+							});
+							break;
 					}
-			
-					const headers = new Headers();
-					object.writeHttpMetadata(headers);
-					headers.set("etag", object.httpEtag);
-			
-					response = new Response(object.body, {
-					  headers,
-					});
+
 					response.headers.set('cache-control','public, max-age=60');
 					response.headers.set("Access-Control-Allow-Origin", "*");
 					response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
