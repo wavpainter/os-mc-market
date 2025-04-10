@@ -42,10 +42,10 @@ function displayRecentLog() {
 
                 let hoursSince = Math.floor((new Date().getTime() - new Date(log.at).getTime()) / (1000 * 60 * 60));
 
-                if(itemName == null) return;
-                
                 viewedLogs[key] = true;
 
+                if(itemName == null) return;
+                
                 if(!showingRemoved && (log.type == 'Removed')) return;
                 if(hideStock && (log.type == 'Restocked' || log.type == 'Out of Stock')) return;
 
@@ -127,7 +127,11 @@ function displayRecentCount() {
         let nRecent = 0;
         recent.forEach(log => {
             let key = getLogKey(log);
-            if(!viewedLogs[key]) nRecent++;
+            if(!viewedLogs[key]) {
+                console.log(JSON.stringify(log))
+                console.log(key);
+                nRecent++;
+            }
         })
 
         let recentEle = ele("recent-offers-count");
