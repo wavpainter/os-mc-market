@@ -30,3 +30,7 @@ CREATE TABLE IF NOT EXISTS shop_stock (
     FOREIGN KEY (shop_id, prev_timestamp) REFERENCES shop_stock (shop_id,timestamp),
     PRIMARY KEY (shop_id, timestamp)
 );
+
+/*CREATE INDEX IF NOT EXISTS idx_shopstock_shopid ON shop_stock(shop_id);
+CREATE INDEX IF NOT EXISTS idx_shopstock_timestamp ON shop_stock(timestamp);
+CREATE INDEX IF NOT EXISTS idx_shopstock_prevtimestamp ON shop_stock(prev_timestamp);*/

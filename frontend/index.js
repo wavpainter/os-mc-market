@@ -101,14 +101,24 @@ function appendOrderListing(itemDetails,order) {
     cStack.textContent = adjustPrice(itemDetails['stack'] * order['price'] / order['quantity'],useOSMDollars,orders_diamondMedian);
     cStack.classList.add('listing-table-cell');
     cStack.classList.add('listing-table-price');
-    cLocation.textContent = order['location'].join(" > ");
-    cLocation.classList.add('listing-table-cell');
-    cLocation.classList.add('hover-text');
 
-    let coords = document.createElement('span');
-    coords.classList.add('hover-cell')
-    coords.textContent = order['x'] + " " + order['y'] + " " + order['z'];
-    cLocation.appendChild(coords);
+    let coordsText = order['x'] + " " + order['y'] + " " + order['z'];
+    cLocation.classList.add('listing-table-cell');
+
+    if(order['location'].length > 0) {
+        cLocation.textContent = order['location'].join(" > ");
+        cLocation.classList.add('hover-text');
+        let coords = document.createElement('span');
+        coords.classList.add('hover-cell')
+        coords.textContent = coordsText;
+        cLocation.appendChild(coords);
+    } else {
+        cLocation.textContent = coordsText;
+    }
+    console.log(order['location'])
+
+
+
 
 }
 
