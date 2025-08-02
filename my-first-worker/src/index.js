@@ -198,6 +198,20 @@ async function handleCron(event,env,ctx) {
 
 		marketData['orders'] = ordersCleaned;
 
+		qres = await env.DB.prepare(
+			`SELECT SUM(shop_volume) AS volume 
+			FROM (
+				SELECT ((price / quantity) * stock) AS shop_volume 
+				FROM shop_stock 
+				WHERE price < 10000 AND stock > 0 
+				GROUP BY shop_id 
+				HAVING max(timestamp))`
+		).all();
+
+		let volume = qres.results[0].volume;
+
+		marketData['volume'] = volume;
+
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
 
 		// Create shops that don't exist already

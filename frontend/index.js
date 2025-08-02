@@ -17,6 +17,7 @@ let useOSMDollars = true;
 
 // Data
 let timestamp = null;
+let volume = null;
 let locations = null;
 let orders = null;
 let orders_itemCount = null;
@@ -199,6 +200,7 @@ function displayItems() {
         listingGridItems.innerHTML = "";
 
         ele('metric').innerText = usePlayerCount ? 'players' : 'shops';
+        ele('volume').innerText = adjustPrice(volume,true,null);
 
         // Display items
         view = "items";
@@ -363,6 +365,7 @@ window.onload = event => {
     fetchJSON(APIORIGIN + "/market_data.json").then(data => {
         orders = data['orders'];
         timestamp = data['timestamp'];
+        volume = data['volume'];
 
         orders_itemOrderPlayer = {};
         orders_itemCount = {};
