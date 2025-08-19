@@ -201,11 +201,11 @@ async function handleCron(event,env,ctx) {
 		qres = await env.DB.prepare(
 			`SELECT SUM(shop_volume) AS volume 
 			FROM (
-				SELECT ((price / quantity) * stock) AS shop_volume 
+				SELECT price, stock, ((price / quantity) * stock) AS shop_volume 
 				FROM shop_stock 
-				WHERE price < 10000 AND stock > 0 
 				GROUP BY shop_id 
-				HAVING max(timestamp))`
+				HAVING max(timestamp))
+			WHERE price < 10000 AND stock > 0`
 		).all();
 
 		let volume = qres.results[0].volume;
