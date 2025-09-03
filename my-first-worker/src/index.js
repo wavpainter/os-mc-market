@@ -109,7 +109,14 @@ function fetchWithTimeout(url,options,timeout=7000) {
 	])
 }
 
+function reportElapsed(msg,startTime) {
+	const elapsed = performance.now() - startTime;
+	console.log(msg + " - " + elapsed.toString())
+}
+
 async function handleCron(event,env,ctx) {
+	const startTime = performance.now();
+	let elapsedTime = 0;
 	let qres;
 
 	try{
@@ -127,6 +134,9 @@ async function handleCron(event,env,ctx) {
 
 		// Push market data to bucket
 		let marketData = await mallToMarketData(env.BUCKET,mallData);
+
+		reportElapsed('Converted mall to marked data',startTime);
+
 
 		// Remove duplicate shops from market data
 		let neighbors = {}
@@ -196,6 +206,8 @@ async function handleCron(event,env,ctx) {
 		}
 		console.log(`Removed ${ordersRemoved.length} orders`);
 
+		reportElapsed('Removed orders',startTime);
+
 		marketData['orders'] = ordersCleaned;
 
 		qres = await env.DB.prepare(
@@ -211,6 +223,8 @@ async function handleCron(event,env,ctx) {
 		let volume = qres.results[0].volume;
 
 		marketData['volume'] = volume;
+
+		reportElapsed('Calculated volume',startTime);
 
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
 
@@ -241,6 +255,8 @@ async function handleCron(event,env,ctx) {
 		)
 		.all();
 		let allShops = qres.results;
+
+		reportElapsed('Get all shops',startTime);
 
 		let missingShops = {};
 		let shopIdLookup = {};
@@ -297,12 +313,16 @@ async function handleCron(event,env,ctx) {
 			mappedOrders.push([dbShop.id,newTimestamp,dbShopTimestamp,dbShop.quantity,dbShop.price,-1]);
 		});
 
+		reportElapsed('Map orders',startTime);
+
 		if(mappedOrders.length > 0) {
 			qres = await env.DB.prepare(
 				"INSERT INTO shop_stock (shop_id,timestamp,prev_timestamp,quantity,price,stock) VALUES " + mapValues(mappedOrders)
 			)
 			.all();
 		}
+
+		reportElapsed('Inserted mapped orders',startTime);
 
 		qres = await env.DB.prepare(
 			"SELECT MIN(timestamp) AS min_timestamp FROM shop_stock"
@@ -324,8 +344,12 @@ async function handleCron(event,env,ctx) {
 		.bind(timestamp7d,minTimestamp)
 		.all();
 
+		reportElapsed('About to get cron deltas',startTime);
+
 		let logs = await deltas.getCronDeltas(qres.results,shopIdLookup);
 		logs = logs.sort((a,b) => (new Date(b.at).getTime() - new Date(a.at).getTime()));
+
+		reportElapsed('Got cron deltas',startTime);
 
 		await env.BUCKET.put("recent.json",JSON.stringify(logs));
 
