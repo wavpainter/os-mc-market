@@ -122,11 +122,6 @@ function appendOrderListing(itemDetails,order) {
     } else {
         cLocation.textContent = coordsText;
     }
-    console.log(order['location'])
-
-
-
-
 }
 
 function displayItemListings() {
@@ -457,8 +452,6 @@ window.onload = event => {
             }
 
             orders_inStockCount[order['item']] = x;
-            console.log("orders_inStockCount:")
-            console.log(orders_inStockCount)
 
             if(order['item'] == 'DIAMOND' && order['order_type'] == 'Sell') {
                 diamond_sell_orders.push(order);
