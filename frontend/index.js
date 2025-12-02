@@ -11,8 +11,9 @@ let usePlayerCount = false;
 let usingPlayerCount = false;
 let showUnlisted = false;
 let showingUnlisted = false;
-let isolate0Selling = false;
-let isolating = false;
+let hideOOS = false;
+let hidingOOS = false;
+let hidingItemOOS = false;
 let useOSMDollars = true;
 
 // Data
@@ -21,8 +22,10 @@ let volume = null;
 let locations = null;
 let orders = null;
 let orders_itemCount = null;
+let orders_inStockCount = null;
 let orders_diamondMedian = null;
 let orders_itemOrderPlayer = null;
+let orders_itemOrderPlayerInStock = null;
 let items = null;
 let items_idLookup = null;
 let dataError = false;
@@ -63,6 +66,16 @@ function viewItemListings(itemName,saleType) {
 
 
 function appendOrderListing(itemDetails,order) {
+    let isOOS = false;
+    if((order['order_type'] == 'Sell' && order['stock'] == 0) || 
+    (order['order_type'] == 'Buy' && order['bal'] < order['price'])) {
+        isOOS = true;
+    }
+
+    if(hideOOS && isOOS) {
+        return;
+    }
+
     let row = ele('listing-table').insertRow();
     row.classList.add('listing-table-row');
 
@@ -76,21 +89,14 @@ function appendOrderListing(itemDetails,order) {
     cStock.classList.add('listing-table-stock');
 
     if(order['order_type'] == 'Sell') {
-
-
         cStock.textContent = order['stock'];
-
-        if(order['stock'] == 0) {
-            cStock.classList.add('stock-red');
-        }
     }else {
         cStock.textContent = adjustPrice(order['bal'],true,null);
-
-        if(order['bal'] < order['price']) {
-            cStock.classList.add('stock-red');
-        }
     }
 
+    if(isOOS) {
+        cStock.classList.add('stock-red');
+    }
     
     cSeller.textContent = order['player_name'];
     cSeller.classList.add('listing-table-cell');
@@ -124,9 +130,10 @@ function appendOrderListing(itemDetails,order) {
 }
 
 function displayItemListings() {
-    if(!(displayingViewedItem) 
+    if(!(displayingViewedItem && (hideOOS == hidingItemOOS)) 
         && viewedItemName != null && viewedListingType != null && items != null && orders != null) {
         displayingViewedItem = true;
+        hidingItemOOS = hideOOS;
 
         let itemDetails = items[viewedItemName];
         let itemOrders = orders.filter(order => {
@@ -189,9 +196,9 @@ function displayRecentCount() {
 }
 
 function displayItems() {
-    if (!(displayingItems && (showUnlisted == showingUnlisted) && (isolate0Selling == isolating) && (usePlayerCount == usingPlayerCount)) && items != null && orders != null) {
+    if (!(displayingItems && (showUnlisted == showingUnlisted) && (hideOOS == hidingOOS) && (usePlayerCount == usingPlayerCount)) && items != null && orders != null) {
         showingUnlisted = showUnlisted;
-        isolating = isolate0Selling;
+        hidingOOS = hideOOS;
         usingPlayerCount = usePlayerCount;
         displayingItems = true;
 
@@ -207,8 +214,15 @@ function displayItems() {
         Object.keys(items).forEach(itemName => {
             let item = items[itemName];
 
-            let itemCount = orders_itemCount[itemName];
-            if(itemCount == undefined) {
+            let itemCount = null;
+            if(hideOOS) {
+                itemCount = orders_inStockCount[itemName];
+            } else {
+                itemCount = orders_itemCount[itemName];
+            }
+
+
+            if(itemCount == undefined || (itemCount['Sell'] == 0 && itemCount['Buy'] == 0)) {
                 if(showUnlisted) itemCount = {};
                 else return;
             }
@@ -221,7 +235,12 @@ function displayItems() {
                 buyCount = itemCount['Buy'];
                 if(buyCount == undefined) buyCount = 0;
             } else {
-                let x = orders_itemOrderPlayer[itemName];
+                let x = null;
+                if(hideOOS) {
+                    x = orders_itemOrderPlayerInStock[itemName];
+                } else {
+                    x = orders_itemOrderPlayer[itemName];
+                }
                 if(x == undefined){
                     sellCount = 0;
                     buyCount = 0;
@@ -232,8 +251,6 @@ function displayItems() {
                 }
             }
             
-            if(isolate0Selling && sellCount != 0) return;
-
             let itemBox = document.createElement('div');
             itemBox.classList.add('item-box');
             listingGridItems.appendChild(itemBox);
@@ -335,9 +352,10 @@ function updateUnlisted() {
     displayItems();
 }
 
-function updateIsolate() {
-    isolate0Selling = ele('isolate-option').checked;
+function updateHideOOS() {
+    hideOOS = !ele('hide-oos-option').checked;
     displayItems();
+    displayItemListings();
 }
 
 window.onload = event => {
@@ -355,9 +373,9 @@ window.onload = event => {
         updateUnlisted();
     }
 
-    updateIsolate();
-    ele('isolate-option').onchange = event => {
-        updateIsolate();
+    updateHideOOS();
+    ele('hide-oos-option').onchange = event => {
+        updateHideOOS();
     }
 
     loadViewedLogs();
@@ -368,7 +386,9 @@ window.onload = event => {
         volume = data['volume'];
 
         orders_itemOrderPlayer = {};
+        orders_itemOrderPlayerInStock = {};
         orders_itemCount = {};
+        orders_inStockCount = {};
 
         let diamond_sell_orders = [];
         let diamond_sell_volume = 0;
@@ -386,6 +406,22 @@ window.onload = event => {
 
             orders_itemOrderPlayer[order['item']] = y1;
 
+            y1 = orders_itemOrderPlayerInStock[order['item']];
+
+            if(y1 == undefined) {
+                y1 = {
+                    'Buy': new Set(),
+                    'Sell': new Set()
+                }
+            }
+
+            if((order['order_type'] == 'Buy' && order['bal'] >= order['price'])
+            || (order['order_type'] == 'Sell' && order['stock'] > 0)) {
+                y1[order['order_type']].add(order['player_name']);
+            }
+
+            orders_itemOrderPlayerInStock[order['item']] = y1;
+
             let x = orders_itemCount[order['item']];
             if(x == undefined) {
                 x = {
@@ -401,6 +437,28 @@ window.onload = event => {
             }
 
             orders_itemCount[order['item']] = x;
+
+            x = orders_inStockCount[order['item']];
+            if(x == undefined) {
+                x = {
+                    'Buy': 0,
+                    'Sell': 0
+                }
+            }
+
+            if(order['order_type'] == 'Buy') {
+                if(order['bal'] >= order['price']) {
+                    x['Buy']++;
+                }
+            } else {
+                if(order['stock'] > 0) {
+                    x['Sell']++;
+                }
+            }
+
+            orders_inStockCount[order['item']] = x;
+            console.log("orders_inStockCount:")
+            console.log(orders_inStockCount)
 
             if(order['item'] == 'DIAMOND' && order['order_type'] == 'Sell') {
                 diamond_sell_orders.push(order);
