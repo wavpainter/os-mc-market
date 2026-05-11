@@ -132,8 +132,17 @@ async function handleCron(event,env,ctx) {
 		// New data
 		let newTimestamp = mallData['lastModified'];
 
+		// Get landmark data
+		response = await fetchWithTimeout("https://micro.os-mc.net/market/landmarks", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			}
+		},5000);
+		const landmarkData = await response.json();
+
 		// Push market data to bucket
-		let marketData = await mallToMarketData(env.BUCKET,mallData);
+		let marketData = await mallToMarketData(env.BUCKET,mallData,landmarkData);
 
 		reportElapsed('Converted mall to marked data',startTime);
 
@@ -361,12 +370,23 @@ async function handleCron(event,env,ctx) {
 }
 
 let superTypeItems = new Set(['6','17','18','35','44','263','351']);
-async function mallToMarketData(bucket,mallData) {
+async function mallToMarketData(bucket,mallData,landmarkData) {
 	const mallShops = mallData['shops'];
 	let res;
 
 	res = await bucket.get("locations.json");
-	const locations = await res.json();
+	let locations = await res.json();
+
+	// Augment locations with landmark data
+	if(landmarkData?.landmarks) {
+		landmarkData.landmarks.forEach((landmark) => {
+			const x = landmark.x;
+			const z = landmark.z;
+			const radius = landmark.radius || 100;
+
+			locations["/lmk " + landmark.name] = {"bounds": {"*":[[x-radius,0,z-radius],[x+radius,200,z+radius]]}};
+		})
+	}
 
 	res = await bucket.get("items.json");
 	const items = await res.json();
