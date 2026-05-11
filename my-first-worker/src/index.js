@@ -51,7 +51,11 @@ function handleOptions (request) {
 
 // Get the location the item is being sold e.g. ['Mall',"Foo's Store"]
 function find_location(x,y,z,locations) {
-	let location_arr = [];
+	/**
+	 * @type {{[key:string]: {distance:number,sublocations:[]}}}
+	 */
+	let found_locations = {};
+
 	for (const location_name in locations) {
 		let location = locations[location_name];
 		let in_bounds = false;
@@ -68,16 +72,38 @@ function find_location(x,y,z,locations) {
 			}
 		}
 		if(in_bounds) {
-			location_arr.push(location_name);
+			let xDifference = location.origin?.x ? (location.origin.x - x) : 0;
+			let yDifference = location.origin?.y ? (location.origin.y - y) : 0;
+			let distance = Math.sqrt(xDifference*xDifference + yDifference*yDifference);
+
+			found_locations[location_name] = {
+				distance: distance,
+				sublocations: []
+			}
+
 			let sublocations = location["sublocations"];
 			if(sublocations != undefined) {
 				let sublocation_arr = find_location(x,y,z,sublocations);
-				location_arr.push(...sublocation_arr);
+				found_locations[location_name].sublocations.push(...sublocation_arr);
 			}
 		}
+
+		let minDistance = Number.MAX_SAFE_INTEGER;
+		let minLocationName = null;
+		Object.keys(found_locations).forEach(locationName => {
+			let distance = found_locations[locationName].distance;
+			if(distance < minDistance) {
+				minDistance = distance;
+				minLocationName = locationName;
+			}
+		})
 	}
 
-	return location_arr;
+	if(minLocationName) {
+		return [minLocationName,...found_locations[minLocationName].sublocations];
+	} else {
+		return [];
+	}
 }
 
 function mapValues(data) {
@@ -426,7 +452,7 @@ async function mallToMarketData(bucket,mallData,landmarkData) {
 			const z = landmark.z;
 			const radius = landmark.radius || 300;
 
-			locations["/lmk " + landmark.name] = {"bounds": {"*":[[x-radius,0,z-radius],[x+radius,200,z+radius]]}};
+			locations["/lmk " + landmark.name] = {bounds: {"*":[[x-radius,0,z-radius],[x+radius,200,z+radius]]},origin: {x,z} };
 		})
 	}
 
