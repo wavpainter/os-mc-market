@@ -114,6 +114,10 @@ function reportElapsed(msg,startTime) {
 	console.log(msg + " - " + elapsed.toString())
 }
 
+function shopKey(player,x,y,z,orderType,itemID) {
+	return `${player}:${x}:${y}:${z}:${orderType}:${itemID}`;
+}
+
 async function handleCron(event,env,ctx) {
 	const startTime = performance.now();
 	let elapsedTime = 0;
@@ -237,17 +241,6 @@ async function handleCron(event,env,ctx) {
 
 		env.BUCKET.put("market_data.json",JSON.stringify(marketData));
 
-		// Create shops that don't exist already
-		let mappedShops = marketData['orders'].map(order => {
-			return [order['player_name'],order['x'],order['y'],order['z'],order['order_type'],order['itemID']];
-		})
-		if(mappedShops.length > 0) {
-			qres = await env.DB.prepare(
-				"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES " + mapValues(mappedShops)
-			)
-			.all();
-		}
-
 		// Get all shops
 		qres = await env.DB.prepare(
 			`SELECT s.*, ss.timestamp,ss.prev_timestamp,ss.quantity,ss.price,ss.stock
@@ -265,8 +258,63 @@ async function handleCron(event,env,ctx) {
 		.all();
 		let allShops = qres.results;
 
-		reportElapsed('Get all shops',startTime);
+		reportElapsed('Get all shops 1',startTime);
 
+		let uniqueShopLookup = {};
+		allShops.forEach(shop => {
+			let key = shopKey(shop.player, shop.x, shop.y, shop.z, shop.order_type, shop.item_id);
+			uniqueShopLookup[key] = shop;
+		})
+
+		// Create shops that don't exist already
+		let newShops = [];
+		marketData['orders'].forEach(order => {
+			const player = order['player_name'];
+			const x = order['x'];
+			const y = order['y']
+			const z = order['z']
+			const orderType = order['order_type'];
+			const itemID = order['itemID'];
+
+			const key = shopKey(player,x,y,z,orderType,itemID);
+
+			if(!uniqueShopLookup[key]) {
+				newShops.push([player,x,y,z,orderType,itemID]);
+			}
+		})
+
+		if(newShops.length > 0) {
+			qres = await env.DB.prepare(
+				"INSERT OR IGNORE INTO shop (player,x,y,z,order_type,item_id) VALUES " + mapValues(newShops)
+			)
+			.all();
+
+			// Get all shops again
+			qres = await env.DB.prepare(
+				`SELECT s.*, ss.timestamp,ss.prev_timestamp,ss.quantity,ss.price,ss.stock
+				FROM shop s
+				LEFT JOIN
+					(SELECT A.* 
+					FROM shop_stock A 
+					INNER JOIN 
+						(SELECT shop_id, MAX(timestamp) AS timestamp 
+						FROM shop_stock 
+						GROUP BY shop_id) B 
+					ON A.shop_id = B.shop_id AND A.timestamp = B.timestamp) ss
+				ON s.id = ss.shop_id`
+			)
+			.all();
+			allShops = qres.results;
+
+			reportElapsed('Get all shops 2',startTime);
+
+			uniqueShopLookup = {};
+			allShops.forEach(shop => {
+				let key = shopKey(shop.player, shop.x, shop.y, shop.z, shop.order_type, shop.item_id);
+				uniqueShopLookup[key] = shop;
+			})
+		}
+		
 		let missingShops = {};
 		let shopIdLookup = {};
 		allShops.forEach(shop => {
@@ -282,12 +330,6 @@ async function handleCron(event,env,ctx) {
 			shopIdLookup[shop.id] = shopData;
 			missingShops[shop.id] = shop;
 		});
-
-		let uniqueShopLookup = {};
-		allShops.forEach(shop => {
-			let key = `${shop.player}:${shop.x}:${shop.y}:${shop.z}:${shop.order_type}:${shop.item_id}`;
-			uniqueShopLookup[key] = shop;
-		})
 
 		// Add orders for shops
 		let mappedOrders = []
@@ -382,7 +424,7 @@ async function mallToMarketData(bucket,mallData,landmarkData) {
 		landmarkData.landmarks.forEach((landmark) => {
 			const x = landmark.x;
 			const z = landmark.z;
-			const radius = landmark.radius || 100;
+			const radius = landmark.radius || 300;
 
 			locations["/lmk " + landmark.name] = {"bounds": {"*":[[x-radius,0,z-radius],[x+radius,200,z+radius]]}};
 		})
