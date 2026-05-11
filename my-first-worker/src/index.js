@@ -87,17 +87,17 @@ function find_location(x,y,z,locations) {
 				found_locations[location_name].sublocations.push(...sublocation_arr);
 			}
 		}
-
-		let minDistance = Number.MAX_SAFE_INTEGER;
-		let minLocationName = null;
-		Object.keys(found_locations).forEach(locationName => {
-			let distance = found_locations[locationName].distance;
-			if(distance < minDistance) {
-				minDistance = distance;
-				minLocationName = locationName;
-			}
-		})
 	}
+
+	let minDistance = Number.MAX_SAFE_INTEGER;
+	let minLocationName = null;
+	Object.keys(found_locations).forEach(locationName => {
+		let distance = found_locations[locationName].distance;
+		if(distance < minDistance) {
+			minDistance = distance;
+			minLocationName = locationName;
+		}
+	})
 
 	if(minLocationName) {
 		return [minLocationName,...found_locations[minLocationName].sublocations];
