@@ -461,7 +461,7 @@ async function mallToMarketData(bucket,mallData,landmarkData) {
 		landmarkData.landmarks.forEach((landmark) => {
 			const x = landmark.x;
 			const z = landmark.z;
-			const radius = landmark.radius || 300;
+			const radius = landmark.radius || 1000;
 
 			locations["/lmk " + landmark.name] = {bounds: {"*":[[x-radius,0,z-radius],[x+radius,200,z+radius]]},origin: {x,z} };
 		})
