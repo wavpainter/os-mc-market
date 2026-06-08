@@ -193,6 +193,11 @@ async function handleCron(event,env,ctx) {
 			let order = marketData['orders'][i];
 			let neighbor = neighbors[`${order.x}:${order.y}:${order.z}:${order.order_type}`];
 
+			if(order.price == null) {
+				ordersRemoved.push(order);
+				continue;
+			}
+
 			if(neighbor == undefined) {
 				ordersCleaned.push(order);
 				continue;
@@ -507,9 +512,6 @@ async function mallToMarketData(bucket,mallData,landmarkData) {
 
 			order_types_isbuy.forEach(order_type_isbuy => {
 				let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
-				if(price == null) {
-					return;
-				}
 
 				orders.push({
 					"x": loc['x'],
