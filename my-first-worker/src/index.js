@@ -392,11 +392,17 @@ async function handleCron(event,env,ctx) {
 
 		reportElapsed('Map orders',startTime);
 
+		const CHUNK_SIZE = 1000;
 		if(mappedOrders.length > 0) {
-			qres = await env.DB.prepare(
-				"INSERT INTO shop_stock (shop_id,timestamp,prev_timestamp,quantity,price,stock) VALUES " + mapValues(mappedOrders)
-			)
-			.all();
+			let chunks = Math.ceil(mappedOrders.length / CHUNK_SIZE);
+			for(let i = 0; i < chunks; i++) {
+				let slicedOrders = mappedOrders.slice(i*CHUNK_SIZE,(i+1)*CHUNK_SIZE);
+
+				qres = await env.DB.prepare(
+					"INSERT INTO shop_stock (shop_id,timestamp,prev_timestamp,quantity,price,stock) VALUES " + mapValues(slicedOrders)
+				)
+				.all();
+			}
 		}
 
 		reportElapsed('Inserted mapped orders',startTime);
@@ -473,50 +479,59 @@ async function mallToMarketData(bucket,mallData,landmarkData) {
 	let orders = [];
 	for(let i = 0; i < mallShops.length; i++) {
 		let mallShop = mallShops[i];
+		try {
+			let loc = mallShop["location"];
+			let location = find_location(loc['x'],loc['y'],loc['z'],locations);
 
-		let loc = mallShop["location"];
-		let location = find_location(loc['x'],loc['y'],loc['z'],locations);
+			let order_types_isbuy = []
+			if(mallShop['canBuy']) order_types_isbuy.push(true);
+			if(mallShop['canSell']) order_types_isbuy.push(false);
 
-		let order_types_isbuy = []
-		if(mallShop['canBuy']) order_types_isbuy.push(true);
-		if(mallShop['canSell']) order_types_isbuy.push(false);
+			let itemId = `${mallShop['materialID']}`;
+			if(superTypeItems.has(itemId)) {
+				itemId = itemId + ':' + mallShop['durability'];
+			}
 
-		let itemId = `${mallShop['materialID']}`;
-		if(superTypeItems.has(itemId)) {
-			itemId = itemId + ':' + mallShop['durability'];
-		}
+			let item_name = items_nameLookup[itemId];
 
-		let item_name = items_nameLookup[itemId];
+			let owner = mallShop['owner'].substring(0,15)
 
-		let owner = mallShop['owner'].substring(0,15)
+			let signKey = owner + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
+			if(signIndex.has(signKey)) {
+				continue;
+			}
 
-		let signKey = owner + ":" + item_name + ":" + loc['x'] + ":" + loc['y'] + ":" + loc['z'];
-		if(signIndex.has(signKey)) {
-			continue;
-		}
+			signIndex.add(signKey);
 
-		signIndex.add(signKey);
+			let flooredStock = Math.floor(mallShop['availableStock'] / mallShop['unit']) * mallShop['unit'];
 
-		let flooredStock = Math.floor(mallShop['availableStock'] / mallShop['unit']) * mallShop['unit'];
+			order_types_isbuy.forEach(order_type_isbuy => {
+				let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
+				if(price == null) {
+					return;
+				}
 
-		order_types_isbuy.forEach(order_type_isbuy => {
-			let price = order_type_isbuy ? mallShop['buyPrice'] : mallShop['sellPrice'];
-			orders.push({
-				"x": loc['x'],
-				"y": loc['y'],
-				"z": loc['z'],
-				"player_name": owner,
-				"quantity": mallShop['unit'],
-				"order_type": order_type_isbuy ? 'Sell' : 'Buy',
-				"price": price,
-				"unit_price": price / mallShop['unit'],
-				"item": item_name != undefined ? item_name : "undef",
-				"itemID": itemId,
-				"location": location,
-				"stock": flooredStock,
-				"bal": mallShop['ownerBalance']
+				orders.push({
+					"x": loc['x'],
+					"y": loc['y'],
+					"z": loc['z'],
+					"player_name": owner,
+					"quantity": mallShop['unit'],
+					"order_type": order_type_isbuy ? 'Sell' : 'Buy',
+					"price": price,
+					"unit_price": price / mallShop['unit'],
+					"item": item_name != undefined ? item_name : "undef",
+					"itemID": itemId,
+					"location": location,
+					"stock": flooredStock,
+					"bal": mallShop['ownerBalance']
+				})
 			})
-		})
+		} catch(ex) {
+			console.warn("Error while processing a shop");
+			console.warn(JSON.stringify(mallShop));
+			console.warn(ex);
+		}
 	}
 
 	marketData["orders"] = orders;
